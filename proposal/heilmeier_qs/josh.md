@@ -1,0 +1,11 @@
+# Heilmeier Questions
+
+1. **What are you trying to do? Articulate your objectives using absolutely no jargon**. We are predicting the accident frequency along the roads in Los Angeles and using that information for routing purposes.
+2. **How is it done today; what are the limits of current practice?** Currently, GIS and statistical-approaches are used for prediction. No routing is done (to our knowledge) for routing around future accident hot spots.
+3. **What's new in your approach? Why will it be successful?** We aim to make an API that can be accessed to predict accident frequency/probability for a given geographic location along a road network. Another innovation is that a generic model that can be trained for specific geographic regions with little data will be developed.
+4. **Who cares?** Traffic accidents caused an estimated [31,720 deaths from January to September 2021 in the US](https://www.nhtsa.gov/press-releases/traffic-fatalities-estimates-jan-sept-2021). This affects nearly everyone, even those who don't drive.
+5. **If you're successful, what difference and impact will it make, and how do you measure them (e.g., via user studies, experiments, ground truth data, etc.)?** If successful, this can be used by first responders, government officials, and city planners to optimize resource allocation, help alleviate traffic, and prevent further death and injury.
+6. **What are the risks and payoffs?** One risk is that the methods developed may perform worse than the current methods. The payoff is that lives and money can be saved. Another risk is that we are not able to obtain enough data to train, validate, and test our models or that the datasets obtained are disparate and integrating them is too difficult or not possible.
+7. **How much will it cost?** As of right now, nothing. There are many free resources (e.g., Google Colab, Python Anywhere) that can be used by students to train models and host APIs.
+8. **How long will it take?** This will most likely take right up until the deadline of the project.
+9. **What are the midterm and final "exams" to check for success? How will progress be measured?**  One metric to measure progress is prediction accuracy and another is runtime.
