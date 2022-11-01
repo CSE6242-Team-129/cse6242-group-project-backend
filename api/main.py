@@ -9,20 +9,20 @@ app = FastAPI()
 
 
 data = None
-with open('../data/sample.csv') as f:
+with open('../data/transformed-data.csv') as f:
     reader = csv.DictReader(f)
     data = [row for row in reader]
 
 
-max_crashes = 25
-min_crashes = 0
+max_predictions = 25
+min_predictions = 0
 max_predictions = len(data)
 
 def make_prediction(data: dict):
     data_copy = copy.deepcopy(data)
     data_copy.update({'predictions': {
-        'linear': random.randint(min_crashes, max_crashes),
-        'decision_tree': random.randint(min_crashes, max_crashes)
+        'linear': random.randint(min_predictions, max_predictions),
+        'decision_tree': random.randint(min_predictions, max_predictions)
     }})
     return data_copy
 
