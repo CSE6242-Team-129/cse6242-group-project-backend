@@ -4,19 +4,21 @@ import random
 
 from fastapi import FastAPI
 
+from data import utils
 
 app = FastAPI()
 
 
-data = None
-with open('../data/transformed-data.csv') as f:
-    reader = csv.DictReader(f)
-    data = [row for row in reader]
+# data = None
+# with open('../data/transformed-data.csv') as f:
+#     reader = csv.DictReader(f)
+#     data = [row for row in reader]
 
 
 max_predictions = 25
 min_predictions = 0
-max_predictions = len(data)
+conn = utils.connect_to_db('../data/accidents.db')
+# max_predictions = len(data)
 
 def make_prediction(data: dict):
     data_copy = copy.deepcopy(data)
@@ -31,6 +33,7 @@ def make_predictions(num_predictions: int=max_predictions) -> list:
     """
     Make `num_predictions` number of predictions and shuffle them
     """
+    data = utils.get_random_entries(conn, max_predictions)
     return {
         'results': random.sample(
             [make_prediction(row) for row in data[0:num_predictions]],

@@ -74,10 +74,10 @@
             const popupInfo = `<ul>
                 <li>Predicted # Accidents: ${datum.predictions[predType]}</li>
                 <li>Prediction method: ${predType}</li>
-                <li>Time: ${datum.time}</li>
+                <li>On: ${datum.date_occurred} @ ${datum.time_occurred}</li>
                 <li>Lon, Lat: ${datum.longitude}, ${datum.latitude}</li>
                 <li>Area ID: ${datum.area_id}</li>
-                <li>Street, Cross Street: ${datum.street.slice(0, 10)}, ${datum.cross_street.slice(0, 10)}</li>
+                <li>Street, Cross Street: ${datum.address.slice(0, 10)}, ${datum.cross_street.slice(0, 10)}</li>
             </ul>
             `;
             return L.circle([datum.longitude, datum.latitude], {
