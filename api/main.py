@@ -17,7 +17,7 @@ app = FastAPI()
 
 max_predictions = 25
 min_predictions = 0
-conn = utils.connect_to_db('../data/accidents.db')
+conn = utils.connect_to_db('../dataset_with_neg_data/locations.db')
 # max_predictions = len(data)
 
 def make_prediction(data: dict):
