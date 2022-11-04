@@ -4,7 +4,7 @@ import random
 
 from fastapi import FastAPI
 
-from data import utils
+import utils
 
 app = FastAPI()
 
