@@ -1,3 +1,7 @@
 fastapi[all]
-pandas
+pandas==1.3.5
+matplotlib==3.5.1
+numpy==1.21.2
 requests
+sklearn==0.24.1
+xgboost==1.7.1
