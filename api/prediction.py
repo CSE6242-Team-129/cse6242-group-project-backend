@@ -87,9 +87,9 @@ class Prediction:
 
         return self.index_df, self.input_features_ohe
 
-    def deliver_output(self):
+    def deliver_output(self, output_file="prediction_results.csv"):
 
         self.pred = self.xgb_clf.predict(self.input_features_ohe)
         self.output = self.index_df.copy()
         self.output["Pred Label"] = self.pred
-        self.output.to_csv("prediction_results.csv", index=False)
+        self.output.to_csv(output_file, index=False)
