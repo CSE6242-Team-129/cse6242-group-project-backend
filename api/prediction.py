@@ -1,22 +1,5 @@
-import warnings
-
-warnings.filterwarnings("ignore")
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import datetime as dt
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    confusion_matrix,
-    f1_score,
-    roc_auc_score,
-)
 
 
 class Prediction:
