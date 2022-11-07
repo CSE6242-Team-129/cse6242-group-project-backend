@@ -1,5 +1,7 @@
 # Model
 
+*note*: this is currently using Python 3.9.15
+
 ## How to use
 1. Please refer to the 'requirements.txt' to check all the necessary libraries and their version to run the files.
 2. 'prediction.py' contains a class to train a classification model using historical data('la_final_data.csv') and xgboost.
