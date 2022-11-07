@@ -7,7 +7,7 @@ import sqlite3
 import pandas as pd
 
 
-def load_data(filename, headers: bool=True) -> list:
+def load_data(filename, headers: bool = True) -> list:
     """
     Load the data from the given CSV file
 
@@ -20,12 +20,12 @@ def load_data(filename, headers: bool=True) -> list:
     -------
     (list): a list of the data in the CSV file
     """
-    with open(filename, 'r') as f:
+    with open(filename, "r") as f:
         if headers:
             reader = csv.DictReader(f)
         else:
             reader = csv.reader(f)
-        return  [row for row in reader]
+        return [row for row in reader]
 
 
 def extract_lat_lon(df: pd.DataFrame) -> pd.DataFrame:
@@ -35,14 +35,15 @@ def extract_lat_lon(df: pd.DataFrame) -> pd.DataFrame:
     'Longitude', respectively
 
     """
+
     def to_tuple(row):
         d = ast.literal_eval(row)
-        return d['latitude'], d['longitude']
+        return d["latitude"], d["longitude"]
 
     # adapted from:
     # https://gist.github.com/sammatuba/70269c2b5268a83344f5de609ea9b3cc
     # Line 19
-    df[['latitude', 'longitude']] = pd.DataFrame(
+    df[["latitude", "longitude"]] = pd.DataFrame(
         df.location.apply(lambda r: to_tuple(r)).tolist(), index=df.index
     )
 
@@ -53,12 +54,13 @@ def extract_lat_lon(df: pd.DataFrame) -> pd.DataFrame:
 
 def transform_date_time(df: pd.DataFrame) -> pd.DataFrame:
     """"""
-    suffix = 'T00:00:00.000'
+    suffix = "T00:00:00.000"
+
     def get_date(row: str):
         return row.removesuffix(suffix)
 
-    df['date_occurred'] = pd.DataFrame(
-        df['date_occurred'].apply(lambda r: get_date(r)).tolist(), index=df.index
+    df["date_occurred"] = pd.DataFrame(
+        df["date_occurred"].apply(lambda r: get_date(r)).tolist(), index=df.index
     )
     return df
 
@@ -66,7 +68,7 @@ def transform_date_time(df: pd.DataFrame) -> pd.DataFrame:
 def change_column_names(df: pd.DataFrame) -> pd.DataFrame:
     """"""
     df.columns = [
-        old_col_name.replace(' ', '_').replace('(', '').replace(')', '').lower()
+        old_col_name.replace(" ", "_").replace("(", "").replace(")", "").lower()
         for old_col_name in df.columns
     ]
 
@@ -75,22 +77,20 @@ def change_column_names(df: pd.DataFrame) -> pd.DataFrame:
 
 def clean_whitespace(df: pd.DataFrame) -> pd.DataFrame:
     """"""
+
     def trim_ws(row):
-        return ' '.join(str(row).split()).title()
+        return " ".join(str(row).split()).title()
 
-
-    df.address = pd.DataFrame(
-        df.address.astype(str).apply(lambda r: trim_ws(r))
-    )
+    df.address = pd.DataFrame(df.address.astype(str).apply(lambda r: trim_ws(r)))
     df.cross_street = pd.DataFrame(
         df.cross_street.astype(str).apply(lambda r: trim_ws(r))
     )
     return df
 
 
-def load_df(filename, headers: bool=True) -> pd.DataFrame:
+def load_df(filename, headers: bool = True) -> pd.DataFrame:
     """"""
-    data =load_data(filename, headers)
+    data = load_data(filename, headers)
     df = pd.DataFrame(data)
     return df
 
@@ -98,9 +98,9 @@ def load_df(filename, headers: bool=True) -> pd.DataFrame:
 def create_db(db_name: str) -> sqlite3.Connection:
     """"""
     if not os.path.exists(db_name):
-        print('Creating database')
+        print("Creating database")
     else:
-        print('Database already exits')
+        print("Database already exits")
     return sqlite3.connect(db_name)
 
 
@@ -144,14 +144,14 @@ def insert_data(conn: sqlite3.Connection, data: list) -> sqlite3.Connection:
 def get_random_entries(conn: sqlite3.Connection, limit: int) -> list:
     """"""
     cursor = conn.cursor()
-    results = cursor.execute(f"""SELECT *
+    results = cursor.execute(
+        f"""SELECT *
     FROM accidents
     ORDER BY RANDOM()
     LIMIT ?;
-    """, [limit])
+    """,
+        [limit],
+    )
     # adapted from:
     # https://nickgeorge.net/programming/python-sqlite3-extract-to-dictionary/
-    return [
-        {k: item[k] for k in item.keys()}
-        for item in results.fetchall()
-    ]
+    return [{k: item[k] for k in item.keys()} for item in results.fetchall()]

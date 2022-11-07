@@ -17,27 +17,31 @@ app = FastAPI()
 
 max_predictions = 25
 min_predictions = 0
-conn = utils.connect_to_db('../dataset_with_neg_data/locations.db')
+conn = utils.connect_to_db("../dataset_with_neg_data/locations.db")
 # max_predictions = len(data)
+
 
 def make_prediction(data: dict):
     data_copy = copy.deepcopy(data)
-    data_copy.update({'predictions': {
-        'linear': random.randint(min_predictions, max_predictions),
-        'decision_tree': random.randint(min_predictions, max_predictions)
-    }})
+    data_copy.update(
+        {
+            "predictions": {
+                "linear": random.randint(min_predictions, max_predictions),
+                "decision_tree": random.randint(min_predictions, max_predictions),
+            }
+        }
+    )
     return data_copy
 
 
-def make_predictions(num_predictions: int=max_predictions) -> list:
+def make_predictions(num_predictions: int = max_predictions) -> list:
     """
     Make `num_predictions` number of predictions and shuffle them
     """
     data = utils.get_random_entries(conn, max_predictions)
     return {
-        'results': random.sample(
-            [make_prediction(row) for row in data[0:num_predictions]],
-            k=num_predictions
+        "results": random.sample(
+            [make_prediction(row) for row in data[0:num_predictions]], k=num_predictions
         )
     }
 
@@ -47,26 +51,26 @@ def make_random_number_of_predictions():
     return make_predictions(num_predictions)
 
 
-@app.get('/')
+@app.get("/")
 async def home():
     return make_predictions()
 
 
-@app.get('/predict/days/{number_of_days}')
+@app.get("/predict/days/{number_of_days}")
 async def predict_number_of_days(number_of_days: int):
     return make_random_number_of_predictions()
 
 
-@app.get('/predict/days/{number_of_hours}')
+@app.get("/predict/days/{number_of_hours}")
 async def predict_number_of_hours(number_of_hours: int):
     return make_random_number_of_predictions()
 
 
-@app.get('/predict/area/{area_name}')
+@app.get("/predict/area/{area_name}")
 async def predict_area(area_name: str):
     return make_random_number_of_predictions()
 
 
-@app.get('/predict/zip/{zip_code}')
+@app.get("/predict/zip/{zip_code}")
 async def predict_zip_code(zip_code: int):
     return make_random_number_of_predictions()
