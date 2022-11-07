@@ -51,7 +51,7 @@ class Prediction:
         # Features after performing feature selection based on p-values
         self.X_features_ohe = X_features_ohe[self.selected_features]
 
-        # Train xgb classifier using the best params aquired thru cross validation
+        # Train xgb classifier using the best params acquired thru cross validation
         self.xgb_clf = XGBClassifier(
             n_estimators=100, max_depth=7, min_child_weight=1, colsample_bytree=0.75
         )
