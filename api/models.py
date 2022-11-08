@@ -92,9 +92,11 @@ class Classifier:
         self._classifier = XGBClassifier(*args, **kwargs)
         self._current_prediction = None
         self._index_df = None
-        self._training_data = Data(path=path)
+        self._data = Data(path=path)
 
-    def fit(self, features: pd.DataFrame, target: pd.DataFrame) -> 'Classifier':
+    def fit(self) -> 'Classifier':
+        features = self._data.features
+        target = self._data.target
         self._classifier.fit(features, target)
         return self
 
