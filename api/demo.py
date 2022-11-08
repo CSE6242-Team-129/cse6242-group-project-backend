@@ -1,4 +1,9 @@
-from classifier import Classifier
+from models import Classifier, InputData, TrainingData
 
 
-predictor = Classifier("la_final_data.csv")
+tdata = TrainingData("api/la_final_data.csv")
+idata = InputData("api/sample_test_data.csv")
+classifier = Classifier(tdata, idata)
+classifier.fit()
+prediction = classifier.predict()
+classifier.to_csv("results.csv")
