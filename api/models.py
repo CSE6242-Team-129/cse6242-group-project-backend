@@ -68,6 +68,7 @@ class InputData(Data):
         columns = ["Start_Time", "Start_Lat", "Start_Lng"]
         self._index = self._data[columns]
         self._data_ohe = pd.get_dummies(self.data)[SELECTED_FEATURES]
+        self._data = self.data.drop("Start_Time", axis=1, inplace=True)
 
     @property
     def index(self) -> pd.DataFrame:
@@ -79,24 +80,23 @@ class InputData(Data):
 
 
 class Classifier:
-    def __init__(self, tdata: TrainingData, idata: TrainingData, *args, **kwargs) -> None:
-        self._classifier = XGBClassifier(*args, **kwargs)
+    def __init__(self, tdata: TrainingData, **kwargs) -> None:
+        self._classifier = XGBClassifier(**kwargs)
         self._current_prediction = None
         self._tdata = tdata
-        self._idata = idata
 
     def fit(self) -> 'Classifier':
-        features = self._tdata.data
-        target = self._idata.data
+        features = self._tdata.features
+        target = self._tdata.target
         # TODO: fix the following error:
         # Exception has occurred: TypeError
         #   '<' not supported between instances of 'Timestamp' and 'int'
         self._classifier.fit(features, target)
         return self
 
-    def predict(self, data: str) -> pd.DataFrame:
-        prediction = self._classifier(data)
-        output = self._idata.index.copy()
+    def predict(self, data: InputData) -> pd.DataFrame:
+        prediction = self._classifier.predict(data._data_ohe)
+        output = data.index.copy()
         output["Pred Label"] = prediction
         self._current_prediction = output
         return self._current_prediction
