@@ -1,9 +1,15 @@
 from models import Classifier, InputData, TrainingData
 
 
-tdata = TrainingData("api/la_final_data.csv")
-idata = InputData("api/sample_test_data.csv")
-classifier = Classifier(tdata, idata)
+tdata = TrainingData("la_final_data.csv")
+idata = InputData("sample_test_data.csv")
+classifier = Classifier(
+    tdata,
+    n_estimators=100,
+    max_depth=7,
+    min_child_weight=1,
+    colsample_bytree=0.75
+)
 classifier.fit()
-prediction = classifier.predict()
+prediction = classifier.predict(idata)
 classifier.to_csv("results.csv")
