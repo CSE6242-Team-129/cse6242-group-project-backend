@@ -2,6 +2,8 @@
 Used to classify locations as being an area of high-probability of accidents (1)
 or not (0). Adapted from prediction.py
 """
+import pathlib
+
 import pandas as pd
 from xgboost import XGBClassifier
 
@@ -80,7 +82,7 @@ class InputData(Data):
 
 
 class Classifier:
-    def __init__(self, tdata: TrainingData, **kwargs) -> None:
+    def __init__(self, tdata: TrainingData=None, **kwargs) -> None:
         self._classifier = XGBClassifier(**kwargs)
         self._current_prediction = None
         self._tdata = tdata
@@ -100,6 +102,16 @@ class Classifier:
         output["Pred Label"] = prediction
         self._current_prediction = output
         return self._current_prediction
+
+    @staticmethod
+    def load_model(path="model.json") -> 'Classifier':
+        classifier = Classifier()
+        classifier._classifier.load_model(path)
+
+        return classifier
+
+    def save_model(self, path="model.json") -> None:
+        self._classifier.save_model(path)
 
     def to_csv(self, path="results.csv"):
         self._current_prediction.to_csv(path, index=False)
