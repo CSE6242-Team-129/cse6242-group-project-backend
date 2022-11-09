@@ -101,6 +101,13 @@ class Classifier:
         self._current_prediction = output
         return self._current_prediction
 
+    @property
+    def feature_names(self) -> list:
+        """
+        Returns a list of the feature names of the model
+        """
+        return list(self._classifier.feature_names_in_)
+
     @staticmethod
     def load_model(path="model.json") -> 'Classifier':
         classifier = Classifier()
