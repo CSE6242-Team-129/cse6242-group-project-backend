@@ -2,6 +2,9 @@
 Used to classify locations as being an area of high-probability of accidents (1)
 or not (0). Adapted from prediction.py
 """
+from os import PathLike
+from typing import Union
+
 import pandas as pd
 from xgboost import XGBClassifier
 
@@ -31,7 +34,7 @@ SELECTED_FEATURES = [
 
 
 class Data:
-    def __init__(self, path: str, dropcol=True) -> None:
+    def __init__(self, path: Union[str, PathLike], dropcol=True) -> None:
         data = pd.read_csv(path)
         self._data = _preprocess(data, dropcol)
 
@@ -41,7 +44,7 @@ class Data:
 
 
 class TrainingData(Data):
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: Union[str, PathLike]) -> None:
         super().__init__(path)
         self._target = self.data["Target"]
         self._features = self._process_features()
@@ -63,7 +66,7 @@ class TrainingData(Data):
 
 
 class InputData(Data):
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: Union[str, PathLike]) -> None:
         super().__init__(path, dropcol=False)
         columns = ["Start_Time", "Start_Lat", "Start_Lng"]
         self._index = self._data[columns]
@@ -109,16 +112,16 @@ class Classifier:
         return list(self._classifier.feature_names_in_)
 
     @staticmethod
-    def load_model(path="model.json") -> 'Classifier':
+    def load_model(path: Union[str, PathLike]="model.json") -> 'Classifier':
         classifier = Classifier()
         classifier._classifier.load_model(path)
 
         return classifier
 
-    def save_model(self, path="model.json") -> None:
+    def save_model(self, path: Union[str, PathLike]="model.json") -> None:
         self._classifier.save_model(path)
 
-    def to_csv(self, path="results.csv"):
+    def to_csv(self, path: Union[str, PathLike]="results.csv"):
         self._current_prediction.to_csv(path, index=False)
 
 
