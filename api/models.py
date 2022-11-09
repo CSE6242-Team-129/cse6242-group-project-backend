@@ -2,8 +2,6 @@
 Used to classify locations as being an area of high-probability of accidents (1)
 or not (0). Adapted from prediction.py
 """
-import pathlib
-
 import pandas as pd
 from xgboost import XGBClassifier
 
