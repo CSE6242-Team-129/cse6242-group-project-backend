@@ -25,6 +25,17 @@ def connect_to_db(filename: str, debug: bool=True) -> sqlite3.Connection:
 
 
 def get_locations_by_zip(conn: sqlite3.Connection, zip_code: Union[str, int]) -> list:
+    """
+    Query locations by zip code.
+
+    Args
+    ----
+    conn (sqlite3.Connection): connection to the database
+    zip_code (str|int): the zip code to query by.
+
+    Returns
+    (list[dict]): list of dicts of the result of the query.
+    """
     query = """
     SELECT
         a.hse_nbr,
