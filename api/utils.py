@@ -42,8 +42,8 @@ def get_locations_by_zip(conn: sqlite3.Connection, zip_code: Union[str, int]) ->
     ON z.id = a.zip_code_id
     WHERE z.zip_code = ?;
     """
-    cursor = conn.cursor()
-    result = cursor.execute(query, [zip_code]).fetchall()
+    with conn:
+        result = conn.execute(query, [zip_code]).fetchall()
     return result
 
 
