@@ -2,7 +2,8 @@ import os
 import sqlite3
 from typing import Union
 
-import meteostat
+from meteostat import Hourly, Point, units
+import pint
 
 
 def create_db(db_name: str) -> sqlite3.Connection:
@@ -119,6 +120,14 @@ def get_hourly_data(location: tuple, period: tuple) -> 'pd.DataFrame':
     """"""
     lat, lon, alt = location
     start, end = period
-    loc = meteostat.Point(lat=lat, lon=lon, alt=alt)
-    data = meteostat.Hourly(loc=loc, start=start, end=end).fetch()
+    loc = Point(lat=lat, lon=lon, alt=alt)
+    data = Hourly(loc=loc, start=start, end=end).convert(units.imperial).fetch()
     return data
+
+
+def hpa_to_psi(r: 'pd.DataFrame') -> 'pd.DataFrame':
+    """
+    Converts the pressure data from hPa to PSI.
+    """
+    conversion = 0.014503773773020924
+    return r * conversion
