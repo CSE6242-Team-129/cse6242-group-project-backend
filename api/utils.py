@@ -112,35 +112,3 @@ def construct_address(d: dict) -> str:
         val.title() for key, val in d_copy.items()
         if key in keys
     )
-
-
-def distance(loc1: tuple, loc2: tuple, units: str='imperial') -> float:
-    """
-    Calculates the distance from the given point to the station
-
-    Args
-    ----
-    loc1 (tuple): tuple of coordinates (latitude, longitude) of the point
-    loc2 (tuple): tuple of coordinates (latitude, longitude) of the point
-    units (str): what system to use, imperial (default) or metric
-
-    Returns
-    -------
-    (float) distance from the given point to the station
-    adapted from:
-    https://www.geeksforgeeks.org/program-distance-two-points-earth/
-    """
-    lat1, lon1 = math.radians(loc1[0]), math.radians(loc1[1])
-    lat2, lon2 = math.radians(loc2[0]), math.radians(loc2[1])
-
-    phi = lon2 - lon1
-    theta = lat2 - lat1
-
-    d = (math.sin(theta / 2)**2 +
-         math.cos(lat1) * math.cos(lat2) * (math.sin(phi / 2)**2))
-    d = 2 * math.asin(math.sqrt(d))
-
-
-    earth_radius = {'metric': 6371, 'imperial': 3956}
-    d *= earth_radius[units]
-    return d
