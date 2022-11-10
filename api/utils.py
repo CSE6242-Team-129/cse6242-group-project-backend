@@ -1,9 +1,7 @@
+import math
 import os
 import sqlite3
 from typing import Union
-
-from meteostat import Hourly, Point, units
-import pint
 
 
 def create_db(db_name: str) -> sqlite3.Connection:
@@ -116,18 +114,24 @@ def construct_address(d: dict) -> str:
     )
 
 
-def get_hourly_data(location: tuple, period: tuple) -> 'pd.DataFrame':
-    """"""
-    lat, lon, alt = location
-    start, end = period
-    loc = Point(lat=lat, lon=lon, alt=alt)
-    data = Hourly(loc=loc, start=start, end=end).convert(units.imperial).fetch()
-    return data
-
-
-def hpa_to_psi(r: 'pd.DataFrame') -> 'pd.DataFrame':
+def distance(loc1: tuple, loc2: tuple) -> float:
     """
-    Converts the pressure data from hPa to PSI.
+    adapted from:
+    https://www.geeksforgeeks.org/program-distance-two-points-earth/
     """
-    conversion = 0.014503773773020924
-    return r * conversion
+    lat1, lon1 = loc1
+    lat2, lon2 = loc2
+    lat1, lon1 = math.radians(lat1), math.radians(lon1)
+    lat2, lon2 = math.radians(lat2), math.radians(lon2)
+
+    dist_lon = lon2 - lon1
+    dist_lat = lat2 - lat1
+
+    ans = (math.pow(math.sin(dist_lat / 2), 2) +
+           math.cos(lat1) * math.cos(lat2) *
+           math.pow(math.sin(dist_lon / 2), 2))
+    ans = 2 * math.asin(math.sqrt(ans))
+
+    earth_radius = 6371 # in km
+    ans *= earth_radius
+    return ans
