@@ -2,6 +2,8 @@ import os
 import sqlite3
 from typing import Union
 
+import meteostat
+
 
 def create_db(db_name: str) -> sqlite3.Connection:
     """"""
@@ -111,3 +113,12 @@ def construct_address(d: dict) -> str:
         val.title() for key, val in d_copy.items()
         if key in keys
     )
+
+
+def get_hourly_data(location: tuple, period: tuple) -> 'pd.DataFrame':
+    """"""
+    lat, lon, alt = location
+    start, end = period
+    loc = meteostat.Point(lat=lat, lon=lon, alt=alt)
+    data = meteostat.Hourly(loc=loc, start=start, end=end).fetch()
+    return data
