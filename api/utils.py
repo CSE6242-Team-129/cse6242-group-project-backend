@@ -114,24 +114,33 @@ def construct_address(d: dict) -> str:
     )
 
 
-def distance(loc1: tuple, loc2: tuple) -> float:
+def distance(loc1: tuple, loc2: tuple, units: str='imperial') -> float:
     """
+    Calculates the distance from the given point to the station
+
+    Args
+    ----
+    loc1 (tuple): tuple of coordinates (latitude, longitude) of the point
+    loc2 (tuple): tuple of coordinates (latitude, longitude) of the point
+    units (str): what system to use, imperial (default) or metric
+
+    Returns
+    -------
+    (float) distance from the given point to the station
     adapted from:
     https://www.geeksforgeeks.org/program-distance-two-points-earth/
     """
-    lat1, lon1 = loc1
-    lat2, lon2 = loc2
-    lat1, lon1 = math.radians(lat1), math.radians(lon1)
-    lat2, lon2 = math.radians(lat2), math.radians(lon2)
+    lat1, lon1 = math.radians(loc1[0]), math.radians(loc1[1])
+    lat2, lon2 = math.radians(loc2[0]), math.radians(loc2[1])
 
-    dist_lon = lon2 - lon1
-    dist_lat = lat2 - lat1
+    phi = lon2 - lon1
+    theta = lat2 - lat1
 
-    ans = (math.pow(math.sin(dist_lat / 2), 2) +
-           math.cos(lat1) * math.cos(lat2) *
-           math.pow(math.sin(dist_lon / 2), 2))
-    ans = 2 * math.asin(math.sqrt(ans))
+    d = (math.sin(theta / 2)**2 +
+         math.cos(lat1) * math.cos(lat2) * (math.sin(phi / 2)**2))
+    d = 2 * math.asin(math.sqrt(d))
 
-    earth_radius = 6371 # in km
-    ans *= earth_radius
-    return ans
+
+    earth_radius = {'metric': 6371, 'imperial': 3956}
+    d *= earth_radius[units]
+    return d
