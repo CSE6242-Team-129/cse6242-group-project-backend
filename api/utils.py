@@ -13,7 +13,7 @@ def create_db(db_name: str) -> sqlite3.Connection:
     return sqlite3.connect(db_name)
 
 
-def connect_to_db(filename: str, debug: bool=True) -> sqlite3.Connection:
+def connect_to_db(filename: str, debug: bool = True) -> sqlite3.Connection:
     """"""
     conn = sqlite3.connect(filename)
     if debug:
@@ -57,7 +57,6 @@ def get_locations_by_zip(conn: sqlite3.Connection, zip_code: Union[str, int]) ->
     with conn:
         result = conn.execute(query, [zip_code]).fetchall()
     return result
-
 
 
 def dict_factory(cursor: sqlite3.Cursor, row: sqlite3.Row) -> dict:
@@ -105,10 +104,12 @@ def construct_address(d: dict) -> str:
     """
     d_copy = {key: str(val) for key, val in d.items() if not val is None}
     keys = [
-        'hse_nbr', 'hse_frac_nbr', 'hse_dir_cd', 'str_nm',
-        'str_sfx_cd', 'str_sfx_dir_cd', 'unit_range'
+        "hse_nbr",
+        "hse_frac_nbr",
+        "hse_dir_cd",
+        "str_nm",
+        "str_sfx_cd",
+        "str_sfx_dir_cd",
+        "unit_range",
     ]
-    return ' '.join(
-        val.title() for key, val in d_copy.items()
-        if key in keys
-    )
+    return " ".join(val.title() for key, val in d_copy.items() if key in keys)
