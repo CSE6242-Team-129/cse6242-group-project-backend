@@ -194,7 +194,7 @@ def get_hourly_data(location: tuple, period: tuple) -> 'pd.DataFrame':
     return data
 
 
-def hpa_to_psi(r: 'pd.DataFrame') -> 'pd.DataFrame':
+def hpa_to_psi(r: float) -> float:
     """
     Converts the pressure data from hPa to PSI.
     """
