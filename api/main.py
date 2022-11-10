@@ -5,14 +5,12 @@ import random
 from fastapi import FastAPI
 
 import utils
+from models import Classifier, InputData
+
 
 app = FastAPI()
+classifier = Classifier.load_model(path="model.json")
 
-
-# data = None
-# with open('../data/transformed-data.csv') as f:
-#     reader = csv.DictReader(f)
-#     data = [row for row in reader]
 
 
 max_predictions = 25
