@@ -4,7 +4,7 @@ from folium import plugins
 
 
 # Read data
-data = pd.read_csv("data_short.csv")
+data = pd.read_csv("vis_data_short.csv")
 
 # Change datatype to float and str
 data[["Start_Lat"]] = data[["Start_Lat"]].astype("float")
