@@ -1,3 +1,4 @@
+from functools import lru_cache
 import math
 import os
 import sqlite3
@@ -23,6 +24,32 @@ def connect_to_db(filename: str, debug: bool = True) -> sqlite3.Connection:
         # sqlite3.Row is highly-optimized as a row factory
         conn.row_factory = sqlite3.Row
     return conn
+
+
+@lru_cache
+def get_all_locations(conn: sqlite3.Connection) -> list:
+    """
+    Get every location in the database
+    """
+    query = """
+    SELECT
+        a.hse_nbr,
+        a.hse_frac_nbr,
+        a.hse_dir_cd,
+        a.str_nm,
+        a.str_sfx_cd,
+        a.str_sfx_dir_cd,
+        a.unit_range,
+        a.lat,
+        a.lon,
+        z.zip_code
+    FROM addresses AS a
+    JOIN zip_codes AS z
+    ON z.id = a.zip_code_id;
+    """
+    with conn:
+        results = conn.execute(query).fetchall()
+    return results
 
 
 def get_locations_by_zip(conn: sqlite3.Connection, zip_code: Union[str, int]) -> list:
@@ -113,3 +140,68 @@ def construct_address(d: dict) -> str:
         "unit_range",
     ]
     return " ".join(val.title() for key, val in d_copy.items() if key in keys)
+
+
+def get_all_model_data(conn: sqlite3.Connection) -> list:
+    """"""
+    query = """
+    SELECT *
+    FROM model_data;
+    """
+    with conn:
+        results = conn.execute(query).fetchall()
+    return results
+
+
+def get_closest_match(conn: sqlite3.Connection, location: tuple) -> tuple:
+    """"""
+    distances = [
+        (distance(location, (datum['Start_Lat'], datum['Start_Lng'])), datum)
+        for datum in get_all_model_data(conn)
+    ]
+    return sorted(distances, key=lambda e: e[0])[0]
+
+
+
+def distance(loc1: tuple, loc2: tuple, units: str = "imperial") -> float:
+    """
+    Calculates the distance from the given point to the station
+    Args
+    ----
+    loc1 (tuple): tuple of coordinates (latitude, longitude) of the point
+    loc2 (tuple): tuple of coordinates (latitude, longitude) of the point
+    units (str): what system to use, imperial (default) or metric
+    Returns
+    -------
+    (float) distance from the given point to the station
+    adapted from:
+    https://www.geeksforgeeks.org/program-distance-two-points-earth/
+    """
+    lat1, lon1 = math.radians(loc1[0]), math.radians(loc1[1])
+    lat2, lon2 = math.radians(loc2[0]), math.radians(loc2[1])
+
+    phi = lon2 - lon1
+    theta = lat2 - lat1
+
+    d = math.sin(theta / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * (
+        math.sin(phi / 2) ** 2
+    )
+    d = 2 * math.asin(math.sqrt(d))
+
+    earth_radius = {"metric": 6371, "imperial": 3956}
+    d *= earth_radius[units]
+    return d
+
+
+def find_nearest_location(conn: sqlite3.Connection, location: tuple) -> tuple:
+    """"""
+    # 1. get all locations
+    # 2. calculate the distance between the location and the address
+    #    store result in list
+    # 3. sort list ascending by distance
+    # 4. return first result
+    distances = [
+        (distance(location, (loc['lat'], loc['lon'])), loc)
+        for loc in get_all_locations(conn)
+    ]
+    return sorted(distances, key=lambda e: e[0])[0]
