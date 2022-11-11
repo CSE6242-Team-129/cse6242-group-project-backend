@@ -101,6 +101,8 @@ class Classifier:
         prediction = self._classifier.predict(data._data_ohe)
         output = data.index.copy()
         output["Pred Label"] = prediction
+        proba = self._classifier.predict_proba(data._data_ohe)[:, 1]
+        output["Pred Proba"] = proba
         self._current_prediction = output
         return self._current_prediction
 
