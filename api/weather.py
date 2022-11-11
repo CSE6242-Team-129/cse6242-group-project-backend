@@ -19,13 +19,7 @@ def get_hourly_data(location: tuple, period: tuple) -> "pd.DataFrame":
         .convert(units.imperial)
         .fetch()
     )
-    data.pres = data.pres.apply(lambda r: hpa_to_psi(r))
-    return data
-
-
-def hpa_to_psi(r: float) -> float:
-    """
-    Converts the pressure data from hPa to PSI.
-    """
+    # convert hPa to PSI
     conversion = 0.014503773773020924
-    return r * conversion
+    data.pres = data.pres.apply(lambda r: r * conversion)
+    return data
