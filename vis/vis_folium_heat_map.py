@@ -22,4 +22,4 @@ heatmap_data = data[["Start_Lat", "Start_Lng"]].values
 map_la.add_child((plugins.HeatMap(heatmap_data, radius=15)))
 
 # Save data as index.html
-map_la.save("index.html")
+map_la.save("vis_index.html")
