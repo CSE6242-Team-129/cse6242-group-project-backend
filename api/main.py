@@ -1,11 +1,13 @@
 import copy
 import csv
+from datetime import datetime, timedelta
 import random
 
 from fastapi import FastAPI
 
 import utils
 from models import Classifier, InputData
+import weather as wt
 
 
 app = FastAPI()
@@ -70,5 +72,9 @@ async def predict_area(area_name: str):
 
 
 @app.get("/predict/zip/{zip_code}")
-async def predict_zip_code(zip_code: int):
+async def predict_zip_code(zip_code: str):
+    locations = utils.get_locations_by_zip(conn, zip_code)
+    start = datetime.now()
+    end = start + timedelta(hours=1)
+    weather_data = wt.get_hourly_data()
     return make_random_number_of_predictions()
