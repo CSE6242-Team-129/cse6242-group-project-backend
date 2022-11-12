@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
+     integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14="
+     crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"
+     integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg="
+     crossorigin=""></script>
+    <link rel="stylesheet" href="plugins/lf-select/leaflet.control.select.css">
+    <script src="plugins/lf-select/leaflet.control.select.src.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        .leaflet-container {
+            height: 400px;
+            width: 600px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        #map {
+            height: 400px;
+            position: absolute;
+            /* adapted from: https://stackoverflow.com/a/44949041 */
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            /* adapted from: https://stackoverflow.com/a/2498063 */
+            /* top:50%; */
+            /* left:50%; */
+            /* margin-top:-200px; */  /* this is half the height of your div */
+            /* margin-left:-300px; */ /* this is half the width of your div */
+        }
+    </style>
+    <title>Test the API</title>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        const initialLat = 34.1735806;
+        const initialLon = -118.1303262;
+        const initialZoom = 10;
+        const map = L.map('map').setView([initialLat, initialLon], initialZoom);
+        const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        const predictionsLayerGroup = L.layerGroup()
+        let data;
+
+        const apiBaseUrl = '//localhost:8000';
+        const apiZipUrl = apiBaseUrl + '/predict/zip/91104';
+        const apiDaysUrl = apiBaseUrl + '/predict/days/10';
+        const apiHoursUrl = apiBaseUrl + '/predict/days/1';
+        const apiAreaUrl = apiBaseUrl + '/predict/area/pasadena';
+
+        const fetchData = (url) => {
+            return fetch(url)
+                .then(response => response.json())
+                .then(resp => {
+                    console.log(`Fetching data from '${url}'\n`, resp.results);
+                    data = resp.results;
+                    return data;
+                })
+        }
+
+        const createPredictionCircle = (datum, predType='linear', radiusMultiplier=1000) => {
+            const popupInfo = `<ul>
+                <li>Predicted # Accidents: ${datum.predictions[predType]}</li>
+                <li>Prediction method: ${predType}</li>
+                <li>On: ${datum.date_occurred} @ ${datum.time_occurred}</li>
+                <li>Lon, Lat: ${datum.longitude}, ${datum.latitude}</li>
+                <li>Area ID: ${datum.area_id}</li>
+                <li>Street, Cross Street: ${datum.address.slice(0, 10)}, ${datum.cross_street.slice(0, 10)}</li>
+            </ul>
+            `;
+            return L.circle([datum.longitude, datum.latitude], {
+                color: 'red',
+                radius: datum.predictions[predType]
+            }).addTo(predictionsLayerGroup)
+            .bindPopup(popupInfo);
+        }
+
+        const makePredictions = (data, predType='linear') => {
+            const circles = []
+            data.forEach(datum => {
+                circles.push(createPredictionCircle(datum))
+            });
+        }
+
+        const addPredictionsToMap = () => {
+            map.addLayer(predictionsLayerGroup);
+        }
+
+        const clearPredictions = () => {
+            if (map.hasLayer(predictionsLayerGroup)) {
+                console.log('Clear predictions')
+                map.removeLayer(predictionsLayerGroup);
+            }
+        }
+
+        const clickPredict = (event) => {
+            clearPredictions();
+            // for now, just add all
+            fetchData(apiBaseUrl);
+            makePredictions(data, 'linear');
+            addPredictionsToMap();
+
+        }
+
+        fetchData(apiBaseUrl);
+        // fetchData(apiZipUrl);
+        // fetchData(apiDaysUrl);
+        // fetchData(apiHoursUrl);
+        // fetchData(apiAreaUrl);
+    </script>
+</body>
+</html>
