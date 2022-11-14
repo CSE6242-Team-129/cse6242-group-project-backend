@@ -83,25 +83,26 @@ class InputData(Data):
 
 
 class Classifier:
-    def __init__(self, tdata: TrainingData=None, **kwargs) -> None:
+    def __init__(self, features: pd.DataFrame=None, target: pd.DataFrame=None, **kwargs) -> None:
         self._classifier = XGBClassifier(**kwargs)
         self._current_prediction = None
-        self._tdata = tdata
+        self._features = features
+        self._target = target
 
     def fit(self) -> 'Classifier':
-        features = self._tdata.features
-        target = self._tdata.target
+        features = self._features
+        target = self._target
         # TODO: fix the following error:
         # Exception has occurred: TypeError
         #   '<' not supported between instances of 'Timestamp' and 'int'
         self._classifier.fit(features, target)
         return self
 
-    def predict(self, data: InputData, type_: str = "dict") -> pd.DataFrame:
-        prediction = self._classifier.predict(data.data_ohe)
-        output = data.index.copy()
+    def predict(self, data: pd.DataFrame, index: pd.DataFrame, type_: str = "dict") -> pd.DataFrame:
+        prediction = self._classifier.predict(data)
+        output = index.copy()
         output["Pred Label"] = prediction
-        proba = self._classifier.predict_proba(data.data_ohe)[:, 1]
+        proba = self._classifier.predict_proba(data)[:, 1]
         output["Pred Proba"] = proba
         self._current_prediction = output
         if type_ == 'dict':
