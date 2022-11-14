@@ -164,11 +164,10 @@ def get_all_model_data(conn: sqlite3.Connection) -> list:
 def get_closest_match(conn: sqlite3.Connection, location: tuple) -> tuple:
     """"""
     distances = [
-        (distance(location, (datum['Start_Lat'], datum['Start_Lng'])), datum)
+        (distance(location, (datum["Start_Lat"], datum["Start_Lng"])), datum)
         for datum in get_all_model_data(conn)
     ]
     return sorted(distances, key=lambda e: e[0])[0]
-
 
 
 def distance(loc1: tuple, loc2: tuple, units: str = "imperial") -> float:
@@ -211,7 +210,7 @@ def find_nearest_location(conn: sqlite3.Connection, location: tuple) -> tuple:
     # 3. sort list ascending by distance
     # 4. return first result
     distances = [
-        (distance(location, (loc['lat'], loc['lon'])), loc)
+        (distance(location, (loc["lat"], loc["lon"])), loc)
         for loc in get_all_locations(conn)
     ]
     return sorted(distances, key=lambda e: e[0])[0]
