@@ -9,7 +9,7 @@ classifier = Classifier(
     n_estimators=100,
     max_depth=7,
     min_child_weight=1,
-    colsample_bytree=0.75
+    colsample_bytree=0.75,
 )
 classifier.fit()
 prediction = classifier.predict(idata.data_ohe, idata.index)
