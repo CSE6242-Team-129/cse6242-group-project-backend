@@ -58,7 +58,7 @@ class TrainingData(Data):
         return self._target
 
     def _process_features(self):
-        features = self.data.drop('Target', axis=1, inplace=False)
+        features = self.data.drop("Target", axis=1, inplace=False)
         features_ohe = pd.get_dummies(features)
 
         # Features after performing feature selection based on p-values
@@ -83,13 +83,15 @@ class InputData(Data):
 
 
 class Classifier:
-    def __init__(self, features: pd.DataFrame=None, target: pd.DataFrame=None, **kwargs) -> None:
+    def __init__(
+        self, features: pd.DataFrame = None, target: pd.DataFrame = None, **kwargs
+    ) -> None:
         self._classifier = XGBClassifier(**kwargs)
         self._current_prediction = None
         self._features = features
         self._target = target
 
-    def fit(self) -> 'Classifier':
+    def fit(self) -> "Classifier":
         features = self._features
         target = self._target
         # TODO: fix the following error:
@@ -98,16 +100,18 @@ class Classifier:
         self._classifier.fit(features, target)
         return self
 
-    def predict(self, data: pd.DataFrame, index: pd.DataFrame, type_: str = "dict") -> pd.DataFrame:
+    def predict(
+        self, data: pd.DataFrame, index: pd.DataFrame, type_: str = "dict"
+    ) -> pd.DataFrame:
         prediction = self._classifier.predict(data)
         output = index.copy()
         output["Pred Label"] = prediction
         proba = self._classifier.predict_proba(data)[:, 1]
         output["Pred Proba"] = proba
         self._current_prediction = output
-        if type_ == 'dict':
-            return output.to_dict(orient='index')
-        elif type_ == 'pd':
+        if type_ == "dict":
+            return output.to_dict(orient="index")
+        elif type_ == "pd":
             return self._current_prediction
         else:
             raise ValueError(f"'type_' must be either 'pd' or 'dict' not {type_}")
@@ -120,16 +124,16 @@ class Classifier:
         return list(self._classifier.feature_names_in_)
 
     @staticmethod
-    def load_model(path: Union[str, PathLike]="model.json") -> 'Classifier':
+    def load_model(path: Union[str, PathLike] = "model.json") -> "Classifier":
         classifier = Classifier()
         classifier._classifier.load_model(path)
 
         return classifier
 
-    def save_model(self, path: Union[str, PathLike]="model.json") -> None:
+    def save_model(self, path: Union[str, PathLike] = "model.json") -> None:
         self._classifier.save_model(path)
 
-    def to_csv(self, path: Union[str, PathLike]="results.csv"):
+    def to_csv(self, path: Union[str, PathLike] = "results.csv"):
         self._current_prediction.to_csv(path, index=False)
 
 
