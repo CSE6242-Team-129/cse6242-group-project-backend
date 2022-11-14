@@ -94,9 +94,6 @@ class Classifier:
     def fit(self) -> "Classifier":
         features = self._features
         target = self._target
-        # TODO: fix the following error:
-        # Exception has occurred: TypeError
-        #   '<' not supported between instances of 'Timestamp' and 'int'
         self._classifier.fit(features, target)
         return self
 
