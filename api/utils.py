@@ -202,15 +202,16 @@ def distance(loc1: tuple, loc2: tuple, units: str = "imperial") -> float:
 
 def find_nearest_location(conn: sqlite3.Connection, location: tuple) -> tuple:
     """
-    Returns the location that is nearest to the given latitude-longitude tuple
+    Returns the distance to and the location that is nearest to the given
+    latitude-longitude tuple and the distance to that location.
     """
     # 1. get all locations
     # 2. calculate the distance between the location and the address
     #    store result in list
     # 3. sort list ascending by distance
     # 4. return first result
-    distances = [
+    distances = (
         (distance(location, (loc["lat"], loc["lon"])), loc)
         for loc in get_all_locations(conn)
-    ]
+    )
     return sorted(distances, key=lambda e: e[0])[0]
