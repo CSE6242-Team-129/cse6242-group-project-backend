@@ -60,6 +60,7 @@ def get_all_locations(conn: sqlite3.Connection) -> list:
     return results
 
 
+@lru_cache
 def get_locations_by_zip(conn: sqlite3.Connection, zip_code: Union[str, int]) -> list:
     """
     Query locations by zip code.
