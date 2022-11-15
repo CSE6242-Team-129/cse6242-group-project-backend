@@ -6,7 +6,10 @@ from typing import Union
 
 
 def create_db(db_name: str) -> sqlite3.Connection:
-    """"""
+    """
+    Creates a database if it doesn't already exist, returns a connection to the
+    database once created or if it exists
+    """
     if not os.path.exists(db_name):
         print("Creating database")
     else:
@@ -15,7 +18,12 @@ def create_db(db_name: str) -> sqlite3.Connection:
 
 
 def connect_to_db(filename: str, debug: bool = True) -> sqlite3.Connection:
-    """"""
+    """
+    Returns a connection to the given database. If debug is true, then the
+    row factory used is a list of dicts (which each represent a row in the
+    database). Use debug false when used in production as the sqlite3.Row
+    factory is highly optimized.
+    """
     conn = sqlite3.connect(filename)
     if debug:
         # easier to debug during development
@@ -52,6 +60,7 @@ def get_all_locations(conn: sqlite3.Connection) -> list:
     return results
 
 
+@lru_cache
 def get_locations_by_zip(conn: sqlite3.Connection, zip_code: Union[str, int]) -> list:
     """
     Query locations by zip code.
@@ -156,11 +165,10 @@ def get_all_model_data(conn: sqlite3.Connection) -> list:
 def get_closest_match(conn: sqlite3.Connection, location: tuple) -> tuple:
     """"""
     distances = [
-        (distance(location, (datum['Start_Lat'], datum['Start_Lng'])), datum)
+        (distance(location, (datum["Start_Lat"], datum["Start_Lng"])), datum)
         for datum in get_all_model_data(conn)
     ]
     return sorted(distances, key=lambda e: e[0])[0]
-
 
 
 def distance(loc1: tuple, loc2: tuple, units: str = "imperial") -> float:
@@ -194,14 +202,17 @@ def distance(loc1: tuple, loc2: tuple, units: str = "imperial") -> float:
 
 
 def find_nearest_location(conn: sqlite3.Connection, location: tuple) -> tuple:
-    """"""
+    """
+    Returns the distance to and the location that is nearest to the given
+    latitude-longitude tuple and the distance to that location.
+    """
     # 1. get all locations
     # 2. calculate the distance between the location and the address
     #    store result in list
     # 3. sort list ascending by distance
     # 4. return first result
-    distances = [
-        (distance(location, (loc['lat'], loc['lon'])), loc)
+    distances = (
+        (distance(location, (loc["lat"], loc["lon"])), loc)
         for loc in get_all_locations(conn)
-    ]
+    )
     return sorted(distances, key=lambda e: e[0])[0]
