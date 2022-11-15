@@ -109,9 +109,11 @@ class Classifier:
         proba = self._classifier.predict_proba(data)[:, 1]
         output["Pred Proba"] = proba
         self._current_prediction = output
-        if type_ == "dict":
-            return output.to_dict(orient="index")
-        elif type_ == "pd":
+        if type_ == 'list':
+            return output.to_dict('records')
+        elif type_ == 'dict':
+            return output.to_dict(orient='index')
+        elif type_ == 'pd':
             return self._current_prediction
         else:
             raise ValueError(f"'type_' must be either 'pd' or 'dict' not {type_}")
