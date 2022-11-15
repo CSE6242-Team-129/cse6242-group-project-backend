@@ -97,14 +97,16 @@ class Classifier:
         self._classifier.fit(features, target)
         return self
 
-    def predict(self, data: InputData, type_: str = "dict") -> pd.DataFrame:
+    def predict(self, data: InputData, type_: str = "list") -> pd.DataFrame:
         prediction = self._classifier.predict(data.data_ohe)
         output = data.index.copy()
         output["Pred Label"] = prediction
         proba = self._classifier.predict_proba(data.data_ohe)[:, 1]
         output["Pred Proba"] = proba
         self._current_prediction = output
-        if type_ == 'dict':
+        if type_ == 'list':
+            return output.to_dict('records')
+        elif type_ == 'dict':
             return output.to_dict(orient='index')
         elif type_ == 'pd':
             return self._current_prediction
