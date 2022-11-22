@@ -34,8 +34,10 @@ SELECTED_FEATURES = [
 
 
 class Data:
-    def __init__(self, path: Union[str, PathLike], dropcol=True) -> None:
-        data = pd.read_csv(path)
+    def __init__(
+        self, path: Union[str, PathLike] = None, dropcol=True, data: pd.DataFrame = None
+    ) -> None:
+        data = pd.read_csv(path) if path else data
         self._data = _preprocess(data, dropcol)
 
     @property
@@ -66,8 +68,13 @@ class TrainingData(Data):
 
 
 class InputData(Data):
-    def __init__(self, path: Union[str, PathLike]) -> None:
-        super().__init__(path, dropcol=False)
+    def __init__(
+        self,
+        path: Union[str, PathLike] = None,
+        dropcol=False,
+        data: pd.DataFrame = None,
+    ) -> None:
+        super().__init__(path=path, dropcol=dropcol, data=data)
         columns = ["Start_Time", "Start_Lat", "Start_Lng"]
         self._index = self._data[columns]
         self._data_ohe = pd.get_dummies(self.data)[SELECTED_FEATURES]
@@ -106,11 +113,11 @@ class Classifier:
         proba = self._classifier.predict_proba(data)[:, 1]
         output["Pred Proba"] = proba
         self._current_prediction = output
-        if type_ == 'list':
-            return output.to_dict('records')
-        elif type_ == 'dict':
-            return output.to_dict(orient='index')
-        elif type_ == 'pd':
+        if type_ == "list":
+            return output.to_dict("records")
+        elif type_ == "dict":
+            return output.to_dict(orient="index")
+        elif type_ == "pd":
             return self._current_prediction
         else:
             raise ValueError(f"'type_' must be either 'pd' or 'dict' not {type_}")
