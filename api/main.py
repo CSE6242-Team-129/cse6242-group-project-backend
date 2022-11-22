@@ -1,5 +1,4 @@
 import copy
-import csv
 from datetime import datetime, timedelta
 import random
 
@@ -14,10 +13,10 @@ app = FastAPI()
 classifier = Classifier.load_model(path="model.json")
 
 
-
 max_predictions = 25
 min_predictions = 0
-conn = utils.connect_to_db("../dataset_with_neg_data/locations.db")
+# conn = utils.connect_to_db("../dataset_with_neg_data/locations.db")
+conn = utils.connect_to_db("locations.db")
 # max_predictions = len(data)
 
 
@@ -53,7 +52,10 @@ def make_random_number_of_predictions():
 
 @app.get("/")
 async def home():
-    return make_predictions()
+    # just serve the sample predictions for now
+    sample_data = InputData(path="sample_test_data.csv")
+    prediction = classifier.predict(data=sample_data, type_="dict")
+    return prediction
 
 
 @app.get("/predict/days/{number_of_days}")
