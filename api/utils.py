@@ -4,6 +4,8 @@ import os
 import sqlite3
 from typing import Union
 
+import pandas as pd
+
 
 def create_db(db_name: str) -> sqlite3.Connection:
     """
@@ -216,3 +218,60 @@ def find_nearest_location(conn: sqlite3.Connection, location: tuple) -> tuple:
         for loc in get_all_locations(conn)
     )
     return sorted(distances, key=lambda e: e[0])[0]
+
+
+def construct_sample(
+    location_data: pd.DataFrame, weather_data: pd.DataFrame, time_data: "datetime"
+) -> pd.DataFrame:
+    """
+    Constructs a sample for making a prediction
+    """
+    location_columns = [
+        'Start_Lat',
+        'Start_Lng',
+        'Junction',
+        'Railway',
+        'Station',
+        'Turning_Loop'
+    ]
+    weather_columns = [
+        'Temperature(F)',
+        'Humidity(%)',
+        'Pressure(in)',
+        'Wind_Speed(mph)',
+        'Precipitation(in)',
+    ]
+    time_columns = [
+        'Start_Month',
+        'Start_Hour',
+        'Start_Day_0',
+        'Start_Day_1',
+        'Start_Day_2',
+        'Start_Day_3',
+        'Start_Day_4',
+        'Start_Day_5',
+        'Start_Day_6'
+    ]
+    columns = [*location_columns, *weather_columns, *time_columns]
+    sample = pd.DataFrame(index=weather_data.index, columns=columns)
+    sample[location_columns] = location_data[location_columns]
+    # add weather data, probably using apply
+    sample[weather_columns] = None
+    weekdays = {
+        0: [1, 0, 0, 0, 0, 0, 0],
+        1: [0, 1, 0, 0, 0, 0, 0],
+        2: [0, 0, 1, 0, 0, 0, 0],
+        3: [0, 0, 0, 1, 0, 0, 0],
+        4: [0, 0, 0, 0, 1, 0, 0],
+        5: [0, 0, 0, 0, 0, 1, 0],
+        6: [0, 0, 0, 0, 0, 0, 1],
+    }
+    start_month = time_data.month
+    start_day = time_data.weekday()
+    start_hour = time_data.hour
+
+    sample[time_columns] = start_month, start_hour, *weekdays[start_day]
+
+
+
+    return sample

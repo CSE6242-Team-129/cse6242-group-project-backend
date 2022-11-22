@@ -1,4 +1,4 @@
-,Start_Time,Start_Lat,Start_Lng,Temperature(F),Humidity(%),Pressure(in),Wind_Speed(mph),Precipitation(in),Amenity,Bump,Crossing,Give_Way,Junction,No_Exit,Railway,Roundabout,Station,Stop,Traffic_Calming,Traffic_Signal,Turning_Loop
+Start_Time,Start_Lat,Start_Lng,Temperature(F),Humidity(%),Pressure(in),Wind_Speed(mph),Precipitation(in),Amenity,Bump,Crossing,Give_Way,Junction,No_Exit,Railway,Roundabout,Station,Stop,Traffic_Calming,Traffic_Signal,Turning_Loop
 97950,2018-01-23 18:00:00,33.975517,-118.24116,66.0,25.0,30.18554869563082,4.7,0.0,False,False,False,False,False,False,False,False,False,False,False,False,False
 82548,2017-06-11 20:00:00,33.925338,-118.310396,66.0,68.0,29.925684844602102,10.3,0.0,False,False,False,False,False,False,False,False,False,False,False,False,False
 106747,2018-02-8 19:00:00,34.03913,-118.212688,78.1,15.0,30.11172373795221,0.0,0.0,False,False,False,False,False,False,False,False,False,False,False,False,False
