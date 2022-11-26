@@ -6,8 +6,6 @@ from typing import Union
 
 import pandas as pd
 
-import weather as wt
-
 
 def create_db(db_name: str) -> sqlite3.Connection:
     """
@@ -28,13 +26,16 @@ def connect_to_db(filename: str, debug: bool = True) -> sqlite3.Connection:
     database). Use debug false when used in production as the sqlite3.Row
     factory is highly optimized.
     """
-    conn = sqlite3.connect(filename)
+    conn = sqlite3.connect(filename, detect_types=sqlite3.PARSE_DECLTYPES)
     if debug:
         # easier to debug during development
         conn.row_factory = dict_factory
     else:
         # sqlite3.Row is highly-optimized as a row factory
         conn.row_factory = sqlite3.Row
+
+    sqlite3.register_adapter(str, bool)
+    sqlite3.register_converter("INTEGER", lambda s: s == "True")
     return conn
 
 
@@ -167,7 +168,22 @@ def construct_address(d: dict) -> str:
 def get_all_model_data(conn: sqlite3.Connection, type_: str = "list") -> list:
     """"""
     query = """
-    SELECT *
+    SELECT
+        Start_Lat,
+        Start_Lng,
+        Amenity,
+        Bump,
+        Crossing,
+        Give_Way,
+        Junction,
+        No_Exit,
+        Railway,
+        Roundabout,
+        Station,
+        Stop,
+        Traffic_Calming,
+        Traffic_Signal,
+        Turning_Loop
     FROM model_data;
     """
     with conn:
@@ -239,78 +255,3 @@ def find_nearest_location(conn: sqlite3.Connection, location: tuple) -> tuple:
 
     return shortest_distance, nearest
 
-
-def construct_sample(location_data: pd.DataFrame, time_data: list) -> pd.DataFrame:
-    """
-    Constructs a sample for making a prediction
-    """
-    # NOTE:
-    # just use the data that's in the model_data table
-    # add zip_code_id to model_data table
-    # add zip_code to the prediction
-    # location_columns = [
-    #     'Start_Lat',
-    #     'Start_Lng',
-    #     'Junction',
-    #     'Railway',
-    #     'Station',
-    #     'Turning_Loop'
-    # ]
-    # weather_columns = [
-    #     'Temperature(F)',
-    #     'Humidity(%)',
-    #     'Pressure(in)',
-    #     'Wind_Speed(mph)',
-    #     'Precipitation(in)',
-    # ]
-
-    # columns = [*location_columns, *weather_columns, 'Start_Time']
-    # sample = pd.DataFrame(index=location_data.index, columns=columns)
-    # sample[location_columns] = location_data[location_columns]
-    # # NOTE: for now, use the median of the lat-lon
-    # location = tuple(location_data[['Start_Lat', 'Start_Lng']].median().to_list())
-    # wd = wt.get_hourly_data(location, time_data)
-    # sample[weather_columns] = wd.median()
-    # weekdays = {
-    #     0: [1, 0, 0, 0, 0, 0, 0],
-    #     1: [0, 1, 0, 0, 0, 0, 0],
-    #     2: [0, 0, 1, 0, 0, 0, 0],
-    #     3: [0, 0, 0, 1, 0, 0, 0],
-    #     4: [0, 0, 0, 0, 1, 0, 0],
-    #     5: [0, 0, 0, 0, 0, 1, 0],
-    #     6: [0, 0, 0, 0, 0, 0, 1],
-    # }
-    # start, _ = time_data
-    # start_month = start.month
-    # start_day = start.weekday()
-    # start_hour = start.hour
-
-    # sample[time_columns] = start_month, start_hour, *weekdays[start_day]
-
-    return sample
-
-
-def construct_single_sample(conn: sqlite3.Connection, location: tuple, period: tuple) -> pd.DataFrame:
-    _, sl = get_closest_match(conn, location)
-    similar_location = pd.DataFrame(sl, index=[0])
-    weather = wt.get_hourly_data(location, period)
-    weather_columns = [
-        'Temperature(F)',
-        'Humidity(%)',
-        'Pressure(in)',
-        'Wind_Speed(mph)',
-        'Precipitation(in)',
-    ]
-    similar_location[weather_columns] = weather
-    return pd.DataFrame(similar_location)
-
-
-if __name__ == '__main__':
-    connection = connect_to_db('locations.db')
-    locations = get_all_model_data(connection, type_="pd")
-    from datetime import datetime, timedelta
-    start = datetime.now()
-    end = start + timedelta(hours=1)
-    # sample = construct_sample(locations, (start, end))
-    sample = construct_single_sample(locations, (start, end))
-    print(sample)
