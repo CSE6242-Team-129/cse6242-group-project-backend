@@ -34,6 +34,8 @@ def connect_to_db(filename: str, debug: bool = True) -> sqlite3.Connection:
         # sqlite3.Row is highly-optimized as a row factory
         conn.row_factory = sqlite3.Row
 
+    # convert string data to boolean, adapted from:
+    # https://stackoverflow.com/a/16936992
     sqlite3.register_adapter(str, bool)
     sqlite3.register_converter("INTEGER", lambda s: s == "True")
     return conn
