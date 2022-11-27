@@ -128,26 +128,3 @@ def distance(loc1: tuple, loc2: tuple, units: str = "imperial") -> float:
     earth_radius = {"metric": 6371, "imperial": 3956}
     d *= earth_radius[units]
     return d
-
-
-@lru_cache
-def find_nearest_location(conn: sqlite3.Connection, location: tuple) -> tuple:
-    """
-    Returns the distance to and the location that is nearest to the given
-    latitude-longitude tuple and the distance to that location.
-    """
-    # 1. get all locations
-    # 2. calculate the distance between the location and the address
-    #    store result in list
-    # 3. sort list ascending by distance
-    # 4. return first result
-    nearest = None
-    shortest_distance = math.inf
-    for loc in get_all_locations(conn):
-        dist = distance(location, (loc["lat"], loc["lon"]))
-        if dist < shortest_distance:
-            shortest_distance = dist
-            nearest = loc
-
-    return shortest_distance, nearest
-
