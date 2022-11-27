@@ -41,75 +41,6 @@ def connect_to_db(filename: str, debug: bool = True) -> sqlite3.Connection:
     return conn
 
 
-@lru_cache
-def get_all_locations(conn: sqlite3.Connection, type_: str = "list") -> list:
-    """
-    Get every location in the database
-    """
-    query = """
-    SELECT
-        a.hse_nbr,
-        a.hse_frac_nbr,
-        a.hse_dir_cd,
-        a.str_nm,
-        a.str_sfx_cd,
-        a.str_sfx_dir_cd,
-        a.unit_range,
-        a.lat,
-        a.lon,
-        z.zip_code
-    FROM addresses AS a
-    JOIN zip_codes AS z
-    ON z.id = a.zip_code_id;
-    """
-    with conn:
-        results = conn.execute(query).fetchall()
-
-    if type_ == "df":
-        results = pd.DataFrame(results)
-
-    return results
-
-
-@lru_cache
-def get_locations_by_zip(conn: sqlite3.Connection, zip_code: Union[str, int], type_: str = "list") -> list:
-    """
-    Query locations by zip code.
-
-    Args
-    ----
-    conn (sqlite3.Connection): connection to the database
-    zip_code (str|int): the zip code to query by.
-
-    Returns
-    (list[dict]): list of dicts of the result of the query.
-    """
-    query = """
-    SELECT
-        a.hse_nbr,
-        a.hse_frac_nbr,
-        a.hse_dir_cd,
-        a.str_nm,
-        a.str_sfx_cd,
-        a.str_sfx_dir_cd,
-        a.unit_range,
-        a.lat,
-        a.lon,
-        z.zip_code
-    FROM addresses AS a
-    JOIN zip_codes AS z
-    ON z.id = a.zip_code_id
-    WHERE z.zip_code = ?;
-    """
-    with conn:
-        results = conn.execute(query, [zip_code]).fetchall()
-
-    if type_ == "pd":
-        results = pd.DataFrame(results)
-
-    return results
-
-
 def dict_factory(cursor: sqlite3.Cursor, row: sqlite3.Row) -> dict:
     """
     Converts a sqlite3.Row object to a dictionary. Use this when debugging.
@@ -127,43 +58,6 @@ def dict_factory(cursor: sqlite3.Cursor, row: sqlite3.Row) -> dict:
     """
     col_names = [col[0] for col in cursor.description]
     return {key: value for key, value in zip(col_names, row)}
-
-
-def construct_address(d: dict) -> str:
-    """
-    Constructs and address from a row in the 'addresses' table
-
-    Args
-    ----
-    d (dict): the dictionary of the address to be constructed. Example:
-        {
-            'hse_nbr': 388,
-            'hse_frac_nbr': None,
-            'hse_dir_cd': 'W',
-            'str_nm': 'AVENUE 45',
-            'str_sfx_cd': None,
-            'str_sfx_dir_cd': None,
-            'unit_range': None,
-            'lat': 34.09968,
-            'lon': -118.21117,
-            'zip_code': '90065'
-        }
-
-    Returns
-    (str) the constructed address. From the example given above,
-        '388 W Avenue 45'
-    """
-    d_copy = {key: str(val) for key, val in d.items() if not val is None}
-    keys = [
-        "hse_nbr",
-        "hse_frac_nbr",
-        "hse_dir_cd",
-        "str_nm",
-        "str_sfx_cd",
-        "str_sfx_dir_cd",
-        "unit_range",
-    ]
-    return " ".join(val.title() for key, val in d_copy.items() if key in keys)
 
 
 @lru_cache
