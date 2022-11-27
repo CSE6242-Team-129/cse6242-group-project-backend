@@ -79,7 +79,8 @@ def get_all_model_data(conn: sqlite3.Connection, type_: str = "list") -> list:
         Stop,
         Traffic_Calming,
         Traffic_Signal,
-        Turning_Loop
+        Turning_Loop,
+        Zip_Code
     FROM model_data;
     """
     with conn:
