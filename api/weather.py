@@ -68,7 +68,7 @@ def get_weather_by_lat_lon(lat, lon, type_="pd") -> pd.DataFrame:
 def get_weather_by_zip(zip_code: str, type_="pd") -> pd.DataFrame:
     """
     """
-    if type_ not in ["dict", "pd"]:
+    if type_ not in ["dict", "pd", "tuple"]:
         raise ValueError(f"type_ must be either 'pd' or 'dict', not '{type_}'")
 
     weather = owm_mgr.weather_at_zip_code(zip_code, country="US").weather
@@ -101,3 +101,5 @@ def get_weather_by_zip(zip_code: str, type_="pd") -> pd.DataFrame:
             'Wind_Speed(mph)': wind_speed,
             'Precipitation(in)': precipitation
         }
+    elif type_ == "tuple":
+        return temperature, humidity, pressure, wind_speed, precipitation
