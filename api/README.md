@@ -38,6 +38,20 @@ to run the API on port `5500` run
 make run port=5500
 ```
 
+### Using Python
+
+```bash
+uvicorn main:app --reload --port <port>
+```
+
+or, if that doesn't work
+
+```bash
+python -m uvicorn main:app --reload --port <port>
+```
+
+where `<port>` is the desired port number.
+
 ## Endpoints:
 
 
