@@ -41,7 +41,7 @@ async def predict_zip_code(zip_code: str):
     locations = locations.loc[:, locations.columns != 'Zip_Code']
     idata = InputData(data=locations)
     prediction = classifier.predict(idata.data_ohe, idata.index, type_="list")
-    [p.update({'Zip_Code': zip_code}) for p in prediction]
+    [p.update({'zip_code': zip_code}) for p in prediction]
     return prediction
 
 

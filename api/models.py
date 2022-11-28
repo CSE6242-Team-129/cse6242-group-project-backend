@@ -117,9 +117,12 @@ class Classifier:
     ) -> pd.DataFrame:
         prediction = self._classifier.predict(data)
         output = index.copy()
-        output["Pred_Label"] = prediction
+        output["label"] = prediction
         proba = self._classifier.predict_proba(data)[:, 1]
-        output["Pred_Proba"] = proba
+        output["probability"] = proba
+        output = output.rename(
+            columns={"Start_Lat": "lat", "Start_Lng": "lon", "Start_Time": "time"}
+        )
         self._current_prediction = output
         if type_ == "list":
             return output.to_dict("records")
