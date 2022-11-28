@@ -43,3 +43,22 @@ async def predict_zip_code(zip_code: str):
     prediction = classifier.predict(idata.data_ohe, idata.index, type_="list")
     [p.update({'Zip_Code': zip_code}) for p in prediction]
     return prediction
+
+
+@app.get("/predict/coords/")
+async def predict_by_coords(lat: float, lon: float):
+    closest = pd.DataFrame(utils.get_closest_match(conn, (lat, lon))[1], index=[0])
+    closest[['Start_Lat', 'Start_Lng']] = lat, lon
+    weather = wt.get_weather_by_lat_lon(lat, lon)
+    columns = [
+            'Temperature(F)',
+            'Humidity(%)',
+            'Pressure(in)',
+            'Wind_Speed(mph)',
+            'Precipitation(in)'
+        ]
+    closest[columns] = weather
+    closest['Start_Time'] = datetime.now()
+    idata = InputData(data=closest)
+    prediction = classifier.predict(idata.data_ohe, idata.index, type_="list")
+    return prediction
