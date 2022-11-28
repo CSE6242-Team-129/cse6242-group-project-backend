@@ -139,9 +139,10 @@ def cache_maintainer(clear_time: int):
 
     Source: https://stackoverflow.com/a/62843760
     """
+
     def inner(func):
         def wrapper(*args, **kwargs):
-            if hasattr(func, 'next_clear'):
+            if hasattr(func, "next_clear"):
                 if time.time() > func.next_clear:
                     func.cache_clear()
                     func.next_clear = time.time() + clear_time
@@ -149,5 +150,7 @@ def cache_maintainer(clear_time: int):
                 func.next_clear = time.time() + clear_time
 
             return func(*args, **kwargs)
+
         return wrapper
+
     return inner

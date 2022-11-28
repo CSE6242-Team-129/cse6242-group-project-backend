@@ -81,11 +81,17 @@ class InputData(Data):
             self._data_ohe = pd.get_dummies(self.data)[SELECTED_FEATURES]
         else:
             self._data_ohe = self.data
-            sd = self.data['Start_Day'].values[0]
-            self._data_ohe[SELECTED_FEATURES[-7:]] = [1 if i == sd else 0 for i in range(7)]
+            sd = self.data["Start_Day"].values[0]
+            self._data_ohe[SELECTED_FEATURES[-7:]] = [
+                1 if i == sd else 0 for i in range(7)
+            ]
             self._data_ohe = self._data_ohe[SELECTED_FEATURES]
-            bool_data = self.data_ohe[["Junction", "Railway", "Station", "Turning_Loop"]].astype(bool)
-            self.data_ohe[["Junction", "Railway", "Station", "Turning_Loop"]] = bool_data
+            bool_data = self.data_ohe[
+                ["Junction", "Railway", "Station", "Turning_Loop"]
+            ].astype(bool)
+            self.data_ohe[
+                ["Junction", "Railway", "Station", "Turning_Loop"]
+            ] = bool_data
         self._data = self.data.drop("Start_Time", axis=1, inplace=True)
 
     @property
