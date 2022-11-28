@@ -8,6 +8,8 @@ from meteostat import Hourly, Stations, units
 import pandas as pd
 import pyowm
 
+from utils import cache_maintainer
+
 
 # load the OpenWeatherMap API key
 load_dotenv()
@@ -71,13 +73,14 @@ def transform_data(data: pd.DataFrame) -> pd.DataFrame:
     return wdata
 
 
-def get_owm_weather(lat, lon) -> pd.DataFrame:
+@cache_maintainer(3600) # cache for one hour
+@lru_cache(maxsize=1000)
+def get_weather_by_lat_lon(lat, lon, type_="pd") -> pd.DataFrame:
     """
     """
-    # if location:
-    #     lat, lon = location
-    # else:
-    # lat, lon = (location) if location else los_angeles.lat, los_angeles.lon
+    if type_ not in ["dict", "pd"]:
+        raise ValueError(f"type_ must be either 'pd' or 'dict', not '{type_}'")
+
     weather = owm_mgr.one_call(lat=lat, lon=lon, units="imperial").current
     temperature = weather.temp["temp"] # fahrenheit
     humidity = weather.humidity # in %
@@ -89,13 +92,22 @@ def get_owm_weather(lat, lon) -> pd.DataFrame:
     else:
         precipitation = 0
 
-    columns = [
-        'Temperature(F)',
-        'Humidity(%)',
-        'Pressure(in)',
-        'Wind_Speed(mph)',
-        'Precipitation(in)'
-    ]
-    weather_df = pd.DataFrame(columns=columns, index=[0])
-    weather_df[columns] = temperature, humidity, pressure, wind_speed, precipitation
-    return weather_df
+    if type_ == "pd":
+        columns = [
+            'Temperature(F)',
+            'Humidity(%)',
+            'Pressure(in)',
+            'Wind_Speed(mph)',
+            'Precipitation(in)'
+        ]
+        weather_df = pd.DataFrame(columns=columns, index=[0])
+        weather_df[columns] = temperature, humidity, pressure, wind_speed, precipitation
+        return weather_df
+    elif type_ == "dict":
+        return {
+            'Temperature(F)': temperature,
+            'Humidity(%)': humidity,
+            'Pressure(in)': pressure,
+            'Wind_Speed(mph)': wind_speed,
+            'Precipitation(in)': precipitation
+        }
