@@ -1,7 +1,6 @@
 fastapi[all]
 pandas==1.3.5
 matplotlib==3.5.1
-meteostat
 numpy==1.21.2
 python-dotenv
 pyowm
