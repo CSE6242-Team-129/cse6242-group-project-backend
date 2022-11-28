@@ -1,19 +1,63 @@
-# Model
+# Abstract
 
-*note*: this is currently using Python 3.9.15
+[Insert abstract text here]
 
-## How to use
-1. Please refer to the 'requirements.txt' to check all the necessary libraries and their version to run the files.
-2. 'prediction.py' contains a class to train a classification model using historical data('la_final_data.csv') and xgboost.
-Also, it contains a function to read and transform an input data(here, the sample data is 'sample_test_data.csv'.
-In reality we will use retrieved data from APIs) and generate output of prediction results.
-3. 'perform.py' include a sample code of calling a class in 'prediction.py', train a model, read an input, and delivers the output.
+## Installing
 
-## Data
-1. 'la_final_data,csv': This data can be directly fed into 'Prediction()' class of 'prediction.py' without any cleaning procedure.
-2. 'sample_test_data.csv': This is just a sample input data for testing purpose only. In reality, we will use retrieved data from APIs.
+### Using Make
 
-## Outputs
-1. As a result of prediction, we will generate 'prediction_results.csv' in the same folder.
-This file will contain predicted labels(1: high probability of accident, 0: low probability of accident)
-as well as the time information and geo information of latitude and longitude.
+Run
+
+```
+make setup
+```
+
+### Using pip
+
+Run
+
+```bash
+python -m pip install -r requirements.txt
+python -m pip install -e .
+```
+
+## Running
+
+### Using Make
+
+Run
+
+```bash
+make run
+```
+
+to serve the API on port `8000`. To run another port, use the `port=<port-number>` parameter. For example,
+to run the API on port `5500` run
+
+```bash
+make run port=5500
+```
+
+## Endpoints:
+
+
+- `/` -> prediction of data points in sample_test_data.csv
+- `/predict/zip/{zip_code}` -> prediction for given zip code. Pulls the model data and gives a prediction for each point within the given zip code
+- `/predict/coords?lat=<latitude>&lon=<longitude>` -> prediction for given latitude-longitude pair. This will get the data for the closest matching location (could be within a few feet to a couple of miles so the accuracy varies wildly)
+
+
+Returns a JSON response with the following format:
+
+```json
+[
+   {
+       "lat": 34.1735806,
+       "lon": -118.1303262,
+       "zip_code": 91104,
+       "label": 0,
+       "probability": 0.9742215871810913,
+   }
+]
+```
+
+NOTE: the `zip_code` key is only present when using the zip code prediction endpoint.
