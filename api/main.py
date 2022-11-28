@@ -54,7 +54,6 @@ def make_random_number_of_predictions():
 async def home():
     # just serve the sample predictions for now
     sample_data = InputData(path="sample_test_data.csv")
-    input
     prediction = classifier.predict(data=sample_data, type_="dict")
     return prediction
 
