@@ -3,7 +3,6 @@ import math
 import os
 import sqlite3
 import time
-from typing import Union
 
 import pandas as pd
 
