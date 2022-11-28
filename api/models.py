@@ -117,9 +117,9 @@ class Classifier:
     ) -> pd.DataFrame:
         prediction = self._classifier.predict(data)
         output = index.copy()
-        output["Pred Label"] = prediction
+        output["Pred_Label"] = prediction
         proba = self._classifier.predict_proba(data)[:, 1]
-        output["Pred Proba"] = proba
+        output["Pred_Proba"] = proba
         self._current_prediction = output
         if type_ == "list":
             return output.to_dict("records")
