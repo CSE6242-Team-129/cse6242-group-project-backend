@@ -1,6 +1,4 @@
-import copy
 from datetime import datetime
-import random
 
 from fastapi import FastAPI
 import pandas as pd
