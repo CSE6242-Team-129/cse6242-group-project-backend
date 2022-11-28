@@ -2,6 +2,7 @@ from functools import lru_cache
 import math
 import os
 import sqlite3
+import time
 from typing import Union
 
 import pandas as pd
@@ -129,3 +130,25 @@ def distance(loc1: tuple, loc2: tuple, units: str = "imperial") -> float:
     earth_radius = {"metric": 6371, "imperial": 3956}
     d *= earth_radius[units]
     return d
+
+
+def cache_maintainer(clear_time: int):
+    """
+    A function decorator that clears lru_cache clear_time seconds
+    :param clear_time: In seconds, how often to clear cache (only checks when
+    called)
+
+    Source: https://stackoverflow.com/a/62843760
+    """
+    def inner(func):
+        def wrapper(*args, **kwargs):
+            if hasattr(func, 'next_clear'):
+                if time.time() > func.next_clear:
+                    func.cache_clear()
+                    func.next_clear = time.time() + clear_time
+            else:
+                func.next_clear = time.time() + clear_time
+
+            return func(*args, **kwargs)
+        return wrapper
+    return inner
