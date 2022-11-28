@@ -15,9 +15,7 @@ classifier = Classifier.load_model(path="model.json")
 
 max_predictions = 25
 min_predictions = 0
-# conn = utils.connect_to_db("../dataset_with_neg_data/locations.db")
 conn = utils.connect_to_db("locations.db")
-# max_predictions = len(data)
 
 
 def make_prediction(data: dict):
