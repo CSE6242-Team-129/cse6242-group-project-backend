@@ -4,8 +4,8 @@ import random
 
 from fastapi import FastAPI
 
-import utils
 from models import Classifier, InputData
+import utils
 import weather as wt
 
 
