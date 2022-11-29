@@ -62,10 +62,6 @@ def dict_factory(cursor: sqlite3.Cursor, row: sqlite3.Row) -> dict:
 
 
 @lru_cache
-def get_all_model_data_df(file: str = "data.pickle") -> pd.DataFrame:
-    return pd.read_pickle(file)
-
-@lru_cache
 def get_all_model_data(conn: sqlite3.Connection, type_: str = "list") -> list:
     """"""
     query = """
