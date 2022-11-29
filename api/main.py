@@ -62,3 +62,9 @@ async def predict_by_coords(lat: float, lon: float):
     idata = InputData(data=closest)
     prediction = classifier.predict(idata.data_ohe, idata.index, type_="list")
     return prediction
+
+
+@app.get("/zip_codes")
+async def get_all_zip_codes():
+    zips = utils.get_all_zip_codes(conn)
+    return zips

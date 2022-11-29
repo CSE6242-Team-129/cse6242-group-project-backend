@@ -154,3 +154,11 @@ def cache_maintainer(clear_time: int):
         return wrapper
 
     return inner
+
+
+def get_all_zip_codes(conn: sqlite3.Connection) -> list:
+    query = "SELECT zip_code FROM zip_codes;"
+    with conn:
+        zips = conn.execute(query).fetchall()
+
+    return [zc['zip_code'] for zc in zips]
