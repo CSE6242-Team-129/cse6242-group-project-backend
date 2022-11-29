@@ -67,9 +67,9 @@ Returns a JSON response with the following format:
 ```json
 [
    {
-       "lat": 34.1735806,
-       "lon": -118.1303262,
-       "zip_code": 91104,
+       "lat": 34.10358152582781,
+       "lon": -118.21380890463577,
+       "zip_code": "90065",
        "label": 0,
        "probability": 0.9742215871810913,
    }
