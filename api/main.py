@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 
 from models import Classifier, InputData
@@ -9,6 +10,19 @@ import weather as wt
 
 
 app = FastAPI()
+origins = [
+    "http://localhost",
+    "http://localhost:63342",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 classifier = Classifier.load_model(path="model.json")
 
 conn = utils.connect_to_db("locations.db")
