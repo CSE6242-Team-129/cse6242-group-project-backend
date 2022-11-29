@@ -15,11 +15,8 @@ load_dotenv()
 
 owm = pyowm.OWM(os.environ.get("OWM_API_KEY"))
 owm_mgr = owm.weather_manager()
-los_angeles = (
-    owm.city_id_registry().ids_for("Los Angeles", country="US", matching="exact")
-)[0]
-City = namedtuple("City", ["id", "name", "country", "state", "lat", "lon"])
-los_angeles = City(*los_angeles)
+City = namedtuple("City", ["lat", "lon"])
+los_angeles = City(lat=34.052231, lon=-118.243683)
 
 
 @cache_maintainer(3600)  # cache for one hour
