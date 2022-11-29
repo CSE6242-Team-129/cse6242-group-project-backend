@@ -1,6 +1,7 @@
 from functools import lru_cache
 import math
 import os
+import pickle
 import sqlite3
 import time
 
@@ -59,6 +60,10 @@ def dict_factory(cursor: sqlite3.Cursor, row: sqlite3.Row) -> dict:
     col_names = [col[0] for col in cursor.description]
     return {key: value for key, value in zip(col_names, row)}
 
+
+@lru_cache
+def get_all_model_data_df(file: str = "data.pickle") -> pd.DataFrame:
+    return pd.read_pickle(file)
 
 @lru_cache
 def get_all_model_data(conn: sqlite3.Connection, type_: str = "list") -> list:
