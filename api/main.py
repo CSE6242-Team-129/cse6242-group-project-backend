@@ -82,3 +82,21 @@ async def predict_by_coords(lat: float, lon: float):
 async def get_all_zip_codes():
     zips = utils.get_all_zip_codes(conn)
     return zips
+
+
+@app.get("/predict/all")
+async def get_all_predictions():
+    md = pd.DataFrame(model_data)
+    weather = wt.get_la_weather("tuple")
+    columns = [
+        "Temperature(F)",
+        "Humidity(%)",
+        "Pressure(in)",
+        "Wind_Speed(mph)",
+        "Precipitation(in)",
+    ]
+    md[columns] = weather
+    md["Start_Time"] = datetime.now()
+    idata = InputData(data=md)
+    prediction = classifier.predict(idata.data_ohe, idata.index, type_="list")
+    return prediction
