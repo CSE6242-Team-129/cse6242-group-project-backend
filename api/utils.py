@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import lru_cache
 import math
 import os
@@ -5,6 +6,8 @@ import sqlite3
 import time
 
 import pandas as pd
+
+from models import Classifier, InputData
 
 
 def create_db(db_name: str) -> sqlite3.Connection:
@@ -162,3 +165,19 @@ def get_all_zip_codes(conn: sqlite3.Connection) -> list:
         zips = conn.execute(query).fetchall()
 
     return [zc['zip_code'] for zc in zips]
+
+
+def make_prediction(location: pd.DataFrame, weather: pd.DataFrame, classifier: Classifier) -> pd.DataFrame:
+    """"""
+    columns = [
+        "Temperature(F)",
+        "Humidity(%)",
+        "Pressure(in)",
+        "Wind_Speed(mph)",
+        "Precipitation(in)",
+    ]
+    location[columns] = weather
+    location["Start_Time"] = datetime.now()
+    idata = InputData(data=location)
+    prediction = classifier.predict(idata.data_ohe, idata.index, type_="list")
+    return prediction

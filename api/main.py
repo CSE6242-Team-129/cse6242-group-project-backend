@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
@@ -42,19 +40,7 @@ async def predict_zip_code(zip_code: str):
     # faster to filter before creating DataFrame
     locations = pd.DataFrame([d for d in model_data if d["Zip_Code"] == zip_code])
     weather = wt.get_weather_by_zip(zip_code, type_="tuple")
-    columns = [
-        "Temperature(F)",
-        "Humidity(%)",
-        "Pressure(in)",
-        "Wind_Speed(mph)",
-        "Precipitation(in)",
-    ]
-    locations[columns] = weather
-    locations["Start_Time"] = datetime.now()
-    # strip the zip code for prediction
-    locations = locations.loc[:, locations.columns != "Zip_Code"]
-    idata = InputData(data=locations)
-    prediction = classifier.predict(idata.data_ohe, idata.index, type_="list")
+    prediction = utils.make_prediction(locations, weather, classifier)
     [p.update({"zip_code": zip_code}) for p in prediction]
     return prediction
 
@@ -64,17 +50,7 @@ async def predict_by_coords(lat: float, lon: float):
     closest = pd.DataFrame(utils.get_closest_match(conn, (lat, lon))[1], index=[0])
     closest[["Start_Lat", "Start_Lng"]] = lat, lon
     weather = wt.get_weather_by_lat_lon(lat, lon)
-    columns = [
-        "Temperature(F)",
-        "Humidity(%)",
-        "Pressure(in)",
-        "Wind_Speed(mph)",
-        "Precipitation(in)",
-    ]
-    closest[columns] = weather
-    closest["Start_Time"] = datetime.now()
-    idata = InputData(data=closest)
-    prediction = classifier.predict(idata.data_ohe, idata.index, type_="list")
+    prediction = utils.make_prediction(closest, weather, classifier)
     return prediction
 
 
@@ -88,15 +64,5 @@ async def get_all_zip_codes():
 async def get_all_predictions():
     md = pd.DataFrame(model_data)
     weather = wt.get_la_weather("tuple")
-    columns = [
-        "Temperature(F)",
-        "Humidity(%)",
-        "Pressure(in)",
-        "Wind_Speed(mph)",
-        "Precipitation(in)",
-    ]
-    md[columns] = weather
-    md["Start_Time"] = datetime.now()
-    idata = InputData(data=md)
-    prediction = classifier.predict(idata.data_ohe, idata.index, type_="list")
+    prediction = utils.make_prediction(md, weather, classifier)
     return prediction
