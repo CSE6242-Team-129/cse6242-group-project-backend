@@ -58,6 +58,8 @@ where `<port>` is the desired port number.
 - `/` -> prediction of data points in sample_test_data.csv
 - `/predict/zip/{zip_code}` -> prediction for given zip code. Pulls the model data and gives a prediction for each point within the given zip code
 - `/predict/coords?lat=<latitude>&lon=<longitude>` -> prediction for given latitude-longitude pair. This will get the data for the closest matching location (could be within a few feet to a couple of miles so the accuracy varies wildly)
+- `/predict/all` -> prediction for every data point in our database (~257K data points). This endpoint uses the current weather for Los Angeles instead of each latitude-longitude pair. This was done as a sacrifice of accuracy for speed
+- `/zip_codes` -> gives a list of every zip code that is in the database
 
 
 Returns a JSON response with the following format:
