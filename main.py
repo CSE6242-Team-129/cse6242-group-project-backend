@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 
@@ -25,6 +25,7 @@ classifier = Classifier.load_model(path="model.json")
 
 conn = utils.connect_to_db("locations.db")
 model_data = utils.get_all_model_data(conn=conn)
+zip_codes = utils.get_all_zip_codes(conn=conn)
 
 
 @app.get("/")
@@ -37,6 +38,8 @@ async def home():
 
 @app.get("/predict/zip/{zip_code}")
 async def predict_zip_code(zip_code: str):
+    if zip_code not in zip_codes:
+        raise HTTPException(status_code=404, detail=f"{zip_code} not found in database")
     # faster to filter before creating DataFrame
     locations = pd.DataFrame([d for d in model_data if d["Zip_Code"] == zip_code])
     weather = wt.get_weather_by_zip(zip_code)
@@ -57,8 +60,7 @@ async def predict_by_coords(lat: float, lon: float):
 
 @app.get("/zip_codes")
 async def get_all_zip_codes():
-    zips = utils.get_all_zip_codes(conn)
-    return zips
+    return zip_codes
 
 
 @app.get("/predict/all")
