@@ -65,15 +65,24 @@ where `<port>` is the desired port number.
 Returns a JSON response with the following format:
 
 ```json
-[
-   {
-       "lat": 34.10358152582781,
-       "lon": -118.21380890463577,
-       "zip_code": "90065",
-       "label": 0,
-       "probability": 0.9742215871810913,
-   }
-]
+{
+    "predictions": [
+        {
+            "time": "2022-11-29T21:54:46.271963",
+            "lat": 34.1404637,
+            "lon": -118.2037924,
+            "label": 1,
+            "probability": 0.9999909400939941
+        }
+    ],
+    "weather": {
+        "Temperature(F)": 52.66,
+        "Humidity(%)": 79,
+        "Pressure(in)": 14.779345474708322,
+        "Wind_Speed(mph)": 2.2593094000000002,
+        "Precipitation(in)": 0
+    }
+}
 ```
 
 NOTE: the `zip_code` key is only present when using the zip code prediction endpoint.

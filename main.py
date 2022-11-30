@@ -39,10 +39,11 @@ async def home():
 async def predict_zip_code(zip_code: str):
     # faster to filter before creating DataFrame
     locations = pd.DataFrame([d for d in model_data if d["Zip_Code"] == zip_code])
-    weather = wt.get_weather_by_zip(zip_code, type_="tuple")
-    prediction = utils.make_prediction(locations, weather, classifier)
+    weather = wt.get_weather_by_zip(zip_code)
+    w_tuple = tuple(weather.values[0])
+    prediction = utils.make_prediction(locations, w_tuple, classifier)
     [p.update({"zip_code": zip_code}) for p in prediction]
-    return prediction
+    return {"predictions": prediction, "weather": weather.to_dict("index")[0]}
 
 
 @app.get("/predict/coords/")
@@ -51,7 +52,7 @@ async def predict_by_coords(lat: float, lon: float):
     closest[["Start_Lat", "Start_Lng"]] = lat, lon
     weather = wt.get_weather_by_lat_lon(lat, lon)
     prediction = utils.make_prediction(closest, weather, classifier)
-    return prediction
+    return {"predictions": prediction, "weather": weather.to_dict("index")[0]}
 
 
 @app.get("/zip_codes")
@@ -63,6 +64,7 @@ async def get_all_zip_codes():
 @app.get("/predict/all")
 async def get_all_predictions():
     md = pd.DataFrame(model_data)
-    weather = wt.get_la_weather("tuple")
-    prediction = utils.make_prediction(md, weather, classifier)
-    return prediction
+    weather = wt.get_la_weather()
+    w_tuple = tuple(weather.values[0])
+    prediction = utils.make_prediction(md, w_tuple, classifier)
+    return {"predictions": prediction, "weather": weather.to_dict("index")[0]}

@@ -4,6 +4,5 @@ matplotlib==3.5.1
 numpy==1.21.2
 python-dotenv
 pyowm
-requests
 scikit-learn==0.24.1
 xgboost==1.7.1
