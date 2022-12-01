@@ -10,6 +10,7 @@ import weather as wt
 app = FastAPI()
 origins = [
     "http://localhost",
+    "https://localhost:5500",
     "http://localhost:63342",
 ]
 
@@ -37,7 +38,7 @@ async def home():
 
 
 @app.get("/predict/zip/{zip_code}")
-async def predict_zip_code(zip_code: str):
+async def predict_zip_code(zip_code: str, forecast: str = None):
     if zip_code not in zip_codes:
         raise HTTPException(status_code=404, detail=f"{zip_code} not found in database")
     # faster to filter before creating DataFrame
@@ -50,7 +51,7 @@ async def predict_zip_code(zip_code: str):
 
 
 @app.get("/predict/coords/")
-async def predict_by_coords(lat: float, lon: float):
+async def predict_by_coords(lat: float, lon: float, forecast: str = None):
     closest = pd.DataFrame(utils.get_closest_match(conn, (lat, lon))[1], index=[0])
     closest[["Start_Lat", "Start_Lng"]] = lat, lon
     weather = wt.get_weather_by_lat_lon(lat, lon)
@@ -66,7 +67,9 @@ async def get_all_zip_codes():
 @app.get("/predict/all")
 async def get_all_predictions():
     md = pd.DataFrame(model_data)
+    zip_codes = tuple(md["Zip_Code"])
     weather = wt.get_la_weather()
     w_tuple = tuple(weather.values[0])
     prediction = utils.make_prediction(md, w_tuple, classifier)
+    [p.update({"zip_code": zc}) for zc, p in zip(zip_codes, prediction)]
     return {"predictions": prediction, "weather": weather.to_dict("index")[0]}
