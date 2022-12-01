@@ -122,7 +122,7 @@ def get_la_weather(type_: str = "pd"):
     )  # in hPa
     wind_speed = weather.wind("miles_hour")["speed"]  # in mph
     if weather.rain:
-        precipitation = weather.rain  # inches
+        precipitation = weather.rain["3h"]  # inches
     else:
         precipitation = 0
 
