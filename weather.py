@@ -35,7 +35,7 @@ def get_weather_by_lat_lon(lat, lon, type_="pd") -> pd.DataFrame:
     )  # in hPa
     wind_speed = weather.wind("miles_hour")["speed"]  # in mph
     if weather.rain:
-        precipitation = weather.rain  # inches
+        precipitation = weather.rain["3h"]  # inches
     else:
         precipitation = 0
 
@@ -76,7 +76,7 @@ def get_weather_by_zip(zip_code: str, type_="pd") -> pd.DataFrame:
     )  # in hPa
     wind_speed = weather.wind("miles_hour")["speed"]  # in mph
     if weather.rain:
-        precipitation = weather.rain  # inches
+        precipitation = weather.rain["3h"]  # inches
     else:
         precipitation = 0
 
