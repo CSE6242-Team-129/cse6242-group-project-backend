@@ -17,7 +17,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -42,7 +42,16 @@ async def predict_zip_code(zip_code: str):
     if zip_code not in zip_codes:
         raise HTTPException(status_code=404, detail=f"{zip_code} not found in database")
     # faster to filter before creating DataFrame
-    locations = pd.DataFrame([d for d in model_data if d["Zip_Code"] == zip_code])
+    ls = [d for d in model_data if d["Zip_Code"] == zip_code]
+    locations = None
+    if ls:
+        locations = pd.DataFrame([d for d in model_data if d["Zip_Code"] == zip_code])
+    else:
+        raise HTTPException(status_code=404, detail=f"Nothing found for {zip_code}")
+    cols = list(locations.columns)
+    if not 'Start_Lat' in cols and 'Start_Lng' in cols:
+        print(zip_code)
+        raise HTTPException(status_code=404, detail=f"{zip_code} failed")
     weather = wt.get_weather_by_zip(zip_code)
     w_tuple = tuple(weather.values[0])
     prediction = utils.make_prediction(locations, w_tuple, classifier)
