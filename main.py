@@ -38,7 +38,7 @@ async def home():
 
 
 @app.get("/predict/zip/{zip_code}")
-async def predict_zip_code(zip_code: str, forecast: str = None):
+async def predict_zip_code(zip_code: str):
     if zip_code not in zip_codes:
         raise HTTPException(status_code=404, detail=f"{zip_code} not found in database")
     # faster to filter before creating DataFrame
@@ -51,7 +51,7 @@ async def predict_zip_code(zip_code: str, forecast: str = None):
 
 
 @app.get("/predict/coords/")
-async def predict_by_coords(lat: float, lon: float, forecast: str = None):
+async def predict_by_coords(lat: float, lon: float):
     closest = pd.DataFrame(utils.get_closest_match(conn, (lat, lon))[1], index=[0])
     closest[["Start_Lat", "Start_Lng"]] = lat, lon
     weather = wt.get_weather_by_lat_lon(lat, lon)
