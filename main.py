@@ -16,7 +16,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,8 +33,9 @@ zip_codes = utils.get_all_zip_codes(conn=conn)
 async def home():
     # just serve the sample predictions for now
     data = InputData(path="sample_test_data.csv")
+    weather = utils.get_la_weather()
     prediction = classifier.predict(data.data_ohe, data.index, "list")
-    return prediction
+    return {"predictions": prediction, "weather": weather.to_dict("index")[0]}
 
 
 @app.get("/predict/zip/{zip_code}")
@@ -45,7 +46,7 @@ async def predict_zip_code(zip_code: str):
     ls = [d for d in model_data if d["Zip_Code"] == zip_code]
     locations = None
     if ls:
-        locations = pd.DataFrame([d for d in model_data if d["Zip_Code"] == zip_code])
+        locations = pd.DataFrame(ls)
     else:
         raise HTTPException(status_code=404, detail=f"Nothing found for {zip_code}")
     cols = list(locations.columns)

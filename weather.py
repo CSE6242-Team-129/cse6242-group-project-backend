@@ -34,10 +34,7 @@ def get_weather_by_lat_lon(lat, lon, type_="pd") -> pd.DataFrame:
         weather.barometric_pressure("hPa")["press"] * pressure_conversion
     )  # in hPa
     wind_speed = weather.wind("miles_hour")["speed"]  # in mph
-    if weather.rain:
-        precipitation = weather.rain["3h"]  # inches
-    else:
-        precipitation = 0
+    precipitation = get_rain(weather.rain)  # inches
 
     if type_ == "pd":
         columns = [
@@ -75,10 +72,7 @@ def get_weather_by_zip(zip_code: str, type_="pd") -> pd.DataFrame:
         weather.barometric_pressure("hPa")["press"] * pressure_conversion
     )  # in hPa
     wind_speed = weather.wind("miles_hour")["speed"]  # in mph
-    if weather.rain:
-        precipitation = weather.rain["3h"]  # inches
-    else:
-        precipitation = 0
+    precipitation = get_rain(weather.rain)  # inches
 
     if type_ == "pd":
         columns = [
@@ -103,6 +97,16 @@ def get_weather_by_zip(zip_code: str, type_="pd") -> pd.DataFrame:
         return temperature, humidity, pressure, wind_speed, precipitation
 
 
+def get_rain(rain):
+    try:
+        precipitation = rain["1h"]  # inches
+    except KeyError:
+        try:
+            precipitation = rain["3h"]  # inches
+        except KeyError:
+            precipitation = 0
+    return precipitation
+
 @cache_maintainer(3600)  # cache for one hour
 @lru_cache(maxsize=1000)
 def get_la_weather(type_: str = "pd"):
@@ -121,10 +125,7 @@ def get_la_weather(type_: str = "pd"):
         weather.barometric_pressure("hPa")["press"] * pressure_conversion
     )  # in hPa
     wind_speed = weather.wind("miles_hour")["speed"]  # in mph
-    if weather.rain:
-        precipitation = weather.rain["3h"]  # inches
-    else:
-        precipitation = 0
+    precipitation = get_rain(weather.rain)  # inches
 
     if type_ == "pd":
         columns = [
