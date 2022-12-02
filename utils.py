@@ -5,9 +5,12 @@ import os
 import sqlite3
 import time
 
+from fastapi import Depends
 import pandas as pd
+from sqlalchemy.orm import Session
 
-from models import Classifier, InputData
+from classifier import Classifier, InputData
+from database import engine, SessionLocal
 
 
 def create_db(db_name: str) -> sqlite3.Connection:
@@ -22,7 +25,16 @@ def create_db(db_name: str) -> sqlite3.Connection:
     return sqlite3.connect(db_name)
 
 
-def connect_to_db(filename: str, debug: bool = True) -> sqlite3.Connection:
+# def connect_to_db():
+#     # adapted from:
+#     # https://github.com/duplxey/fastapi-songs/blob/master/main.py
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
+
+def connect_to_db(filename: str = "locations.db", debug: bool = True) -> sqlite3.Connection:
     """
     Returns a connection to the given database. If debug is true, then the
     row factory used is a list of dicts (which each represent a row in the

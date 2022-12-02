@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 
-from models import Classifier, InputData
+from classifier import Classifier, InputData
 import utils
 import weather as wt
 
@@ -24,7 +24,7 @@ app.add_middleware(
 
 classifier = Classifier.load_model(path="model.json")
 
-conn = utils.connect_to_db("locations.db")
+conn = utils.connect_to_db()
 model_data = utils.get_all_model_data(conn=conn)
 zip_codes = utils.get_all_zip_codes(conn=conn)
 
@@ -33,7 +33,7 @@ zip_codes = utils.get_all_zip_codes(conn=conn)
 async def home():
     # just serve the sample predictions for now
     data = InputData(path="sample_test_data.csv")
-    weather = utils.get_la_weather()
+    weather = wt.get_la_weather()
     prediction = classifier.predict(data.data_ohe, data.index, "list")
     return {"predictions": prediction, "weather": weather.to_dict("index")[0]}
 
