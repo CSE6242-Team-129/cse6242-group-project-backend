@@ -25,8 +25,8 @@ app.add_middleware(
 classifier = Classifier.load_model(path="model.json")
 
 conn = utils.connect_to_db()
-model_data = utils.get_all_model_data(conn=conn)
-zip_codes = utils.get_all_zip_codes(conn=conn)
+# model_data = utils.get_all_model_data(conn=conn)
+# zip_codes = utils.get_all_zip_codes(conn=conn)
 
 
 @app.get("/")
@@ -40,9 +40,11 @@ async def home():
 
 @app.get("/predict/zip/{zip_code}")
 async def predict_zip_code(zip_code: str):
+    zip_codes = utils.get_all_zip_codes(conn)
     if zip_code not in zip_codes:
         raise HTTPException(status_code=404, detail=f"{zip_code} not found in database")
     # faster to filter before creating DataFrame
+    model_data = utils.get_all_model_data(conn)
     ls = [d for d in model_data if d["Zip_Code"] == zip_code]
     locations = None
     if ls:
@@ -71,11 +73,12 @@ async def predict_by_coords(lat: float, lon: float):
 
 @app.get("/zip_codes")
 async def get_all_zip_codes():
-    return zip_codes
+    return utils.get_all_zip_codes(conn)
 
 
 @app.get("/predict/all")
 async def get_all_predictions():
+    model_data = utils.get_all_model_data(conn)
     md = pd.DataFrame(model_data)
     zip_codes = tuple(md["Zip_Code"])
     weather = wt.get_la_weather()
