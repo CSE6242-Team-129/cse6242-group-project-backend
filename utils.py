@@ -1,5 +1,5 @@
 from datetime import datetime
-from functools import lru_cache
+# from functools import lru_cache
 import math
 import os
 import sqlite3
@@ -75,7 +75,7 @@ def dict_factory(cursor: sqlite3.Cursor, row: sqlite3.Row) -> dict:
     return {key: value for key, value in zip(col_names, row)}
 
 
-@lru_cache
+# @lru_cache
 def get_all_model_data(conn: sqlite3.Connection, type_: str = "list") -> list:
     """"""
     query = """
@@ -106,7 +106,7 @@ def get_all_model_data(conn: sqlite3.Connection, type_: str = "list") -> list:
     return results
 
 
-@lru_cache
+# @lru_cache
 def get_closest_match(conn: sqlite3.Connection, location: tuple) -> tuple:
     """"""
     distances = [
