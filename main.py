@@ -44,8 +44,8 @@ async def predict_zip_code(zip_code: str):
     if zip_code not in zip_codes:
         raise HTTPException(status_code=404, detail=f"{zip_code} not found in database")
     # faster to filter before creating DataFrame
-    model_data = utils.get_all_model_data(conn)
-    ls = [d for d in model_data if d["Zip_Code"] == zip_code]
+    # model_data = utils.get_all_model_data(conn)
+    ls = utils.get_model_data_by_zip(conn, zip_code)
     locations = None
     if ls:
         locations = pd.DataFrame(ls)

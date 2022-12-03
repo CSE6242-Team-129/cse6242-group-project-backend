@@ -106,6 +106,38 @@ def get_all_model_data(conn: sqlite3.Connection, type_: str = "list") -> list:
     return results
 
 
+def get_model_data_by_zip(conn: sqlite3.Connection, zip_code: str, type_: str = "list") -> list:
+    """"""
+    query = """
+    SELECT
+        Start_Lat,
+        Start_Lng,
+        Amenity,
+        Bump,
+        Crossing,
+        Give_Way,
+        Junction,
+        No_Exit,
+        Railway,
+        Roundabout,
+        Station,
+        Stop,
+        Traffic_Calming,
+        Traffic_Signal,
+        Turning_Loop,
+        Zip_Code
+    FROM model_data
+    WHERE zip_code = ?;
+    """
+    with conn:
+        results = conn.execute(query, [zip_code]).fetchall()
+
+    if type_ == "pd":
+        results = pd.DataFrame(results)
+    return results
+
+
+
 # @lru_cache
 def get_closest_match(conn: sqlite3.Connection, location: tuple) -> tuple:
     """"""
