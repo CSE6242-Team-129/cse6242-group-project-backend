@@ -25,8 +25,6 @@ app.add_middleware(
 classifier = Classifier.load_model(path="model.json")
 
 conn = utils.connect_to_db()
-# model_data = utils.get_all_model_data(conn=conn)
-# zip_codes = utils.get_all_zip_codes(conn=conn)
 
 
 @app.get("/")
@@ -43,8 +41,6 @@ async def predict_zip_code(zip_code: str):
     zip_codes = utils.get_all_zip_codes(conn)
     if zip_code not in zip_codes:
         raise HTTPException(status_code=404, detail=f"{zip_code} not found in database")
-    # faster to filter before creating DataFrame
-    # model_data = utils.get_all_model_data(conn)
     ls = utils.get_model_data_by_zip(conn, zip_code)
     locations = None
     if ls:
