@@ -5,7 +5,7 @@ import sqlite3
 
 import pandas as pd
 
-from models import Classifier, InputData
+from classifier import Classifier, InputData
 
 
 def create_db(db_name: str) -> sqlite3.Connection:
@@ -20,7 +20,7 @@ def create_db(db_name: str) -> sqlite3.Connection:
     return sqlite3.connect(db_name)
 
 
-def connect_to_db(filename: str, debug: bool = True) -> sqlite3.Connection:
+def connect_to_db(filename: str = "locations.db", debug: bool = True) -> sqlite3.Connection:
     """
     Returns a connection to the given database. If debug is true, then the
     row factory used is a list of dicts (which each represent a row in the
