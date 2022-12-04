@@ -1,12 +1,12 @@
 from collections import namedtuple
-from functools import lru_cache
+# from functools import lru_cache
 import os
 
 from dotenv import load_dotenv
 import pandas as pd
 import pyowm
 
-from utils import cache_maintainer
+# from utils import cache_maintainer
 
 
 # load the OpenWeatherMap API key
@@ -19,8 +19,8 @@ City = namedtuple("City", ["id", "lat", "lon"])
 los_angeles = City(id=5368361, lat=34.052231, lon=-118.243683)
 
 
-@cache_maintainer(3600)  # cache for one hour
-@lru_cache(maxsize=1000)
+# @cache_maintainer(3600)  # cache for one hour
+# @lru_cache(maxsize=1000)
 def get_weather_by_lat_lon(lat, lon, type_="pd") -> pd.DataFrame:
     """ """
     if type_ not in ["dict", "pd"]:
@@ -34,10 +34,7 @@ def get_weather_by_lat_lon(lat, lon, type_="pd") -> pd.DataFrame:
         weather.barometric_pressure("hPa")["press"] * pressure_conversion
     )  # in hPa
     wind_speed = weather.wind("miles_hour")["speed"]  # in mph
-    if weather.rain:
-        precipitation = weather.rain  # inches
-    else:
-        precipitation = 0
+    precipitation = get_rain(weather.rain)  # inches
 
     if type_ == "pd":
         columns = [
@@ -60,8 +57,8 @@ def get_weather_by_lat_lon(lat, lon, type_="pd") -> pd.DataFrame:
         }
 
 
-@cache_maintainer(3600)  # cache for one hour
-@lru_cache(maxsize=1000)
+# @cache_maintainer(3600)  # cache for one hour
+# @lru_cache(maxsize=1000)
 def get_weather_by_zip(zip_code: str, type_="pd") -> pd.DataFrame:
     """ """
     if type_ not in ["dict", "pd", "tuple"]:
@@ -75,10 +72,7 @@ def get_weather_by_zip(zip_code: str, type_="pd") -> pd.DataFrame:
         weather.barometric_pressure("hPa")["press"] * pressure_conversion
     )  # in hPa
     wind_speed = weather.wind("miles_hour")["speed"]  # in mph
-    if weather.rain:
-        precipitation = weather.rain  # inches
-    else:
-        precipitation = 0
+    precipitation = get_rain(weather.rain)  # inches
 
     if type_ == "pd":
         columns = [
@@ -103,8 +97,18 @@ def get_weather_by_zip(zip_code: str, type_="pd") -> pd.DataFrame:
         return temperature, humidity, pressure, wind_speed, precipitation
 
 
-@cache_maintainer(3600)  # cache for one hour
-@lru_cache(maxsize=1000)
+def get_rain(rain):
+    try:
+        precipitation = rain["1h"]  # inches
+    except KeyError:
+        try:
+            precipitation = rain["3h"]  # inches
+        except KeyError:
+            precipitation = 0
+    return precipitation
+
+# @cache_maintainer(3600)  # cache for one hour
+# @lru_cache(maxsize=1000)
 def get_la_weather(type_: str = "pd"):
     """"""
     if type_ not in ["dict", "pd", "tuple"]:
@@ -121,10 +125,7 @@ def get_la_weather(type_: str = "pd"):
         weather.barometric_pressure("hPa")["press"] * pressure_conversion
     )  # in hPa
     wind_speed = weather.wind("miles_hour")["speed"]  # in mph
-    if weather.rain:
-        precipitation = weather.rain  # inches
-    else:
-        precipitation = 0
+    precipitation = get_rain(weather.rain)  # inches
 
     if type_ == "pd":
         columns = [

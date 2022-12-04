@@ -1,9 +1,7 @@
 from datetime import datetime
-from functools import lru_cache
 import math
 import os
 import sqlite3
-import time
 
 import pandas as pd
 
@@ -37,10 +35,6 @@ def connect_to_db(filename: str, debug: bool = True) -> sqlite3.Connection:
         # sqlite3.Row is highly-optimized as a row factory
         conn.row_factory = sqlite3.Row
 
-    # convert string data to boolean, adapted from:
-    # https://stackoverflow.com/a/16936992
-    # sqlite3.register_adapter(str, bool)
-    # sqlite3.register_converter("INTEGER", lambda s: s == "True")
     return conn
 
 
@@ -63,9 +57,22 @@ def dict_factory(cursor: sqlite3.Cursor, row: sqlite3.Row) -> dict:
     return {key: value for key, value in zip(col_names, row)}
 
 
-@lru_cache
 def get_all_model_data(conn: sqlite3.Connection, type_: str = "list") -> list:
-    """"""
+    """
+    Returns all model data.
+
+    NOTE: this is currently limited to 100,000 randomly selected data points for
+    performance reasons
+
+    Arguments
+    ---------
+    conn (sqlite3.Connection): connection to the database
+    type_ (str): the type of the returned data (defaults to list)
+
+    Returns
+    -------
+    (type_) list of all data points
+    """
     query = """
     SELECT
         Start_Lat,
@@ -84,7 +91,9 @@ def get_all_model_data(conn: sqlite3.Connection, type_: str = "list") -> list:
         Traffic_Signal,
         Turning_Loop,
         Zip_Code
-    FROM model_data;
+    FROM model_data
+    ORDER BY RANDOM()
+    LIMIT 100000;
     """
     with conn:
         results = conn.execute(query).fetchall()
@@ -94,9 +103,21 @@ def get_all_model_data(conn: sqlite3.Connection, type_: str = "list") -> list:
     return results
 
 
-@lru_cache
 def get_closest_match(conn: sqlite3.Connection, location: tuple) -> tuple:
-    """"""
+    """
+    Finds the model data point that most closely matches the given latitude-longitude
+    pair. NOTE: May be highly inaccurate because the closest data point may be only a
+    few feet to several miles.
+
+    Arguments
+    ---------
+    conn (sqlite3.Connection): connection to the database
+    location (tuple): latitude-longitude pair
+
+    Returns
+    -------
+    (tuple): a tuple of the closest matching data point (could be off by miles)
+    """
     distances = [
         (distance(location, (datum["Start_Lat"], datum["Start_Lng"])), datum)
         for datum in get_all_model_data(conn)
@@ -112,6 +133,7 @@ def distance(loc1: tuple, loc2: tuple, units: str = "imperial") -> float:
     loc1 (tuple): tuple of coordinates (latitude, longitude) of the point
     loc2 (tuple): tuple of coordinates (latitude, longitude) of the point
     units (str): what system to use, imperial (default) or metric
+
     Returns
     -------
     (float) distance from the given point to the station
@@ -134,41 +156,29 @@ def distance(loc1: tuple, loc2: tuple, units: str = "imperial") -> float:
     return d
 
 
-def cache_maintainer(clear_time: int):
-    """
-    A function decorator that clears lru_cache clear_time seconds
-    :param clear_time: In seconds, how often to clear cache (only checks when
-    called)
-
-    Source: https://stackoverflow.com/a/62843760
-    """
-
-    def inner(func):
-        def wrapper(*args, **kwargs):
-            if hasattr(func, "next_clear"):
-                if time.time() > func.next_clear:
-                    func.cache_clear()
-                    func.next_clear = time.time() + clear_time
-            else:
-                func.next_clear = time.time() + clear_time
-
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return inner
-
-
 def get_all_zip_codes(conn: sqlite3.Connection) -> list:
+    """
+    Returns a list of all zip codes in the database
+
+    Arguments
+    ---------
+    conn (sqlite3.Connection): connection to the database
+
+    Returns
+    -------
+    list of all zip codes in the database
+    """
     query = "SELECT zip_code FROM zip_codes;"
     with conn:
         zips = conn.execute(query).fetchall()
 
-    return [zc['zip_code'] for zc in zips]
+    return [zc["zip_code"] for zc in zips]
 
 
-def make_prediction(location: pd.DataFrame, weather: pd.DataFrame, classifier: Classifier) -> pd.DataFrame:
-    """"""
+def make_prediction(
+    location: pd.DataFrame, weather: pd.DataFrame, classifier: Classifier
+) -> pd.DataFrame:
+    """ """
     columns = [
         "Temperature(F)",
         "Humidity(%)",
@@ -181,3 +191,49 @@ def make_prediction(location: pd.DataFrame, weather: pd.DataFrame, classifier: C
     idata = InputData(data=location)
     prediction = classifier.predict(idata.data_ohe, idata.index, type_="list")
     return prediction
+
+
+def get_model_data_by_zip(
+    conn: sqlite3.Connection, zip_code: str, type_: str = "list"
+) -> list:
+    """
+    Returns all model data belonging to the given zip code
+
+    Arguments
+    ---------
+    conn (sqlite3.Connection): connection to the database
+    zip_code (str): the zip code
+    type_ (str): the type of the returned data (defaults to list)
+
+    Returns
+    -------
+    (type_) of dicts of the model data belonging to the given zip code
+
+    """
+    query = """
+    SELECT
+        Start_Lat,
+        Start_Lng,
+        Amenity,
+        Bump,
+        Crossing,
+        Give_Way,
+        Junction,
+        No_Exit,
+        Railway,
+        Roundabout,
+        Station,
+        Stop,
+        Traffic_Calming,
+        Traffic_Signal,
+        Turning_Loop,
+        Zip_Code
+    FROM model_data
+    WHERE zip_code = ?;
+    """
+    with conn:
+        results = conn.execute(query, [zip_code]).fetchall()
+
+    if type_ == "pd":
+        results = pd.DataFrame(results)
+    return results
